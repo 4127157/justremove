@@ -1,20 +1,53 @@
 const webpack = require('webpack');
 const path = require('path');
+/*const toml = require('toml');
+const yaml = require('yamljs');*/
+const json5 = require('json5');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 const config = {
-  entry: './src/index.tsx',
+  entry: {
+      index: { 
+          import: './src/index.tsx',
+      },
+      /*app: {
+          import:'./src/App.tsx',
+      },*/
+  },
   mode: 'development',
   devtool: 'inline-source-map',
+  devServer: {
+      static: './dist',
+      port:1414,
+      hot: true,
+  },
   output: {
+    publicPath: 'auto',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js'
+    clean: true,
+  },
+  optimization: {
+      usedExports:true,
+      moduleIds: 'deterministic',
+      runtimeChunk: 'single',
+      splitChunks: {
+          cacheGroups: {
+              vendor: {
+                  test: /[\\/]node_modules[\\/]/,
+                  name: 'vendors',
+                  chunks: 'all',
+              },
+          },
+      },
   },
   module: {
     rules: [
       {
         test: /\.(js|jsx)$/,
+        include: path.resolve(__dirname, 'src'),
         use: 'babel-loader',
-        exclude: /node_modules/
+        /*exclude: /node_modules/*/
       },
       {
         test: /\.css$/,
@@ -29,23 +62,39 @@ const config = {
         exclude: /node_modules/
       },
       {
-        test: /\.png$/,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              mimetype: 'image/png'
-            }
-          }
-        ]
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },  
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
+      /*{
+        test: /\.toml$/i,
+        type: 'json',
+        parser: {
+          parse: toml.parse,
+        },
       },
       {
-        test: /\.svg$/,
-        use: 'file-loader'
-      }
-    ]
+        test: /\.yaml$/i,
+        type: 'json',
+        parser: {
+          parse: yaml.parse,
+        },
+      },*/
+      {
+        test: /\.json5$/i,
+        type: 'json',
+        parser: {
+          parse: json5.parse,
+        },
+      },
+    ],
   },
   resolve: {
+    symlinks: false,
+    aliasFields: ['browser'],
     extensions: [
       '.tsx',
       '.ts',
@@ -53,8 +102,14 @@ const config = {
     ]
   },
   plugins: [
-    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/)
-  ]
+    new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
+    new HtmlWebpackPlugin({
+        title: 'Remove Image Background',
+    }),
+    // new webpack.ProvidePlugin({
+    //     _: 'lodash',
+    // }),
+  ],
 };
 
 module.exports = config;
