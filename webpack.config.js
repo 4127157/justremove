@@ -4,6 +4,7 @@ const path = require('path');
 const yaml = require('yamljs');*/
 const json5 = require('json5');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const config = {
   entry: {
@@ -43,18 +44,20 @@ const config = {
   },
   module: {
     rules: [
-      {
+      /*{
         test: /\.(js|jsx)$/,
         include: path.resolve(__dirname, 'src'),
         use: 'babel-loader',
-        /*exclude: /node_modules/*/
-      },
+        exclude: /node_modules/
+      },*/
       {
-        test: /\.css$/,
+        test: /\.less$/,
         use: [
-          'style-loader',
-          'css-loader'
-        ]
+            /*'style-loader',*/
+            MiniCssExtractPlugin.loader,
+            'css-loader',
+            'less-loader',
+        ],
       },
       {
         test: /\.ts(x)?$/,
@@ -105,6 +108,9 @@ const config = {
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
     new HtmlWebpackPlugin({
         title: 'Remove Image Background',
+    }),
+    new MiniCssExtractPlugin({
+        filename: './css/[name].css'
     }),
     // new webpack.ProvidePlugin({
     //     _: 'lodash',
