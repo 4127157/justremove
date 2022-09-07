@@ -6,7 +6,7 @@ interface Props {
 
 class App extends React.Component<Props> {
     
-    render() {
+    render(): JSX.Element {
         const { name } = this.props;
         return (
             <>

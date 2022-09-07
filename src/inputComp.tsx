@@ -6,8 +6,8 @@ import * as ReactIs from 'react-is';
 //     name: string,
 // }
 
-class InputComp extends React.Component<any, any>{
-    render(){
+class InputComp extends React.Component{
+    render(): JSX.Element{
         return (
             <>
             <input type="file" id= "image-file-input"/>
