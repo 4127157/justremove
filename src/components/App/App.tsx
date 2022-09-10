@@ -1,5 +1,6 @@
 import * as React from 'react';
 import ImgPreview from '../imgPreview';
+import StatusComp from '../StatusComp';
 
 
 interface Props {
@@ -26,18 +27,23 @@ class App extends React.Component<Props, State> {
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
         if(uploadedFile){
-            if(uploadedFile.type === `image/png`
+            if( uploadedFile.type === `image/png`
                 || uploadedFile.type === `image/jpeg`
                 || uploadedFile.type === `image/jpg`)
             {
                 let FR = new FileReader();
+                FR.onloadstart = () => {
+                    this.setState({
+                        elemRet: <StatusComp loader="preview"/>
+                    });
+                }
                 FR.onloadend = ()=>{
-                        retUrl =FR.result;
-                        if(retUrl){
-                            this.setState({
-                                elemRet: <ImgPreview base64={retUrl}/>
-                            });
-                        }
+                    retUrl =FR.result;
+                    if(retUrl){
+                        this.setState({
+                            elemRet: <ImgPreview base64={retUrl}/>
+                        });
+                    }
                 }
                 FR.readAsDataURL(uploadedFile);
             } else {
@@ -46,7 +52,7 @@ class App extends React.Component<Props, State> {
         }
     }
     
-    render () {
+    render (): JSX.Element {
         return (
             <> 
                 <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles}/>

@@ -5,27 +5,27 @@ interface Props {
 }
 
 interface State {
-    image: JSX.Element 
+    image?: JSX.Element 
 }
 
 class ImgPreview extends React.Component<Props, State>{
     constructor(props: Props){
         super(props);
         this.state = {
-            image: this.previewHere()
+            //image: this.previewHere()
         }
-        this.previewHere = this.previewHere.bind(this);
+        //this.previewHere = this.previewHere.bind(this);
     }
 
     
-    previewHere(){
-        return (<img src={this.props.base64.toString()}/>);
-    }
+    // previewHere(){
+    //     return (<img src={this.props.base64.toString()}/>);
+    // }
     
     render(): JSX.Element{
         return (
             <>
-                <img src={this.props.base64.toString()}/>
+                <img className='preview-img'src={this.props.base64.toString()}/>
                 <p>Your image is above</p>
             </>
         );
