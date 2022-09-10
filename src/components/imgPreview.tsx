@@ -4,15 +4,29 @@ interface Props {
     base64: string | ArrayBuffer
 }
 
-class ImgPreview extends React.Component<Props>{
+interface State {
+    image: JSX.Element 
+}
+
+class ImgPreview extends React.Component<Props, State>{
+    constructor(props: Props){
+        super(props);
+        this.state = {
+            image: this.previewHere()
+        }
+        this.previewHere = this.previewHere.bind(this);
+    }
+
+    
+    previewHere(){
+        return (<img src={this.props.base64.toString()}/>);
+    }
     
     render(): JSX.Element{
-        let base64Str = this.props.base64.toString();
-        const { base64 }= this.props;
-
         return (
             <>
-                <p>{base64Str}</p>
+                <img src={this.props.base64.toString()}/>
+                <p>Your image is above</p>
             </>
         );
     }

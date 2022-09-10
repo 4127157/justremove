@@ -6,49 +6,46 @@ interface Props {
 }
 
 interface State {
-    input?: JSX.Element,
-    base64: string | ArrayBuffer
+    base64?: string | ArrayBuffer,
+    elemRet: JSX.Element
 }
 
 class App extends React.Component<Props, State> {
     constructor(props: Props){
         super(props);
         this.state =  {
-            base64: 'yayayay'
-        }
+            elemRet: <></>,
+        } as State;
 
+        this.handleFiles = this.handleFiles.bind(this);
     }
-
+    
     handleFiles = (e: any) => {
+        let retUrl;
         e.stopPropagation();
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
-        if(uploadedFile){
-            if(uploadedFile.type == "image/jpeg"
-                || uploadedFile.type == "image/png")
-            {
-                console.log("your file is valid 😏");
-                let FR = new FileReader();
-                FR.onloadend = () => {
-                    if(FR.result){
-                        this.setState( { base64: FR.result});
-                    }
+        let FR = new FileReader();
+        FR.onloadend = ()=>{
+                retUrl =FR.result;
+                if(retUrl){
+                    this.setState({
+                        elemRet: <ImgPreview base64={retUrl}/>
+                    });
                 }
-                FR.readAsDataURL(uploadedFile);
-            } else {
-                console.log("invalid file");
-            }
         }
+        FR.readAsDataURL(uploadedFile);
     }
-
-    render(){
+    
+    render () {
         return (
             <> 
                 <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles}/>
-                <ImgPreview base64={this.state.base64}/>
+                {this.state.elemRet}
             </>
         );
     }
+    
 }
 
 export default App;
