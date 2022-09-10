@@ -25,16 +25,25 @@ class App extends React.Component<Props, State> {
         e.stopPropagation();
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
-        let FR = new FileReader();
-        FR.onloadend = ()=>{
-                retUrl =FR.result;
-                if(retUrl){
-                    this.setState({
-                        elemRet: <ImgPreview base64={retUrl}/>
-                    });
+        if(uploadedFile){
+            if(uploadedFile.type === `image/png`
+                || uploadedFile.type === `image/jpeg`
+                || uploadedFile.type === `image/jpg`)
+            {
+                let FR = new FileReader();
+                FR.onloadend = ()=>{
+                        retUrl =FR.result;
+                        if(retUrl){
+                            this.setState({
+                                elemRet: <ImgPreview base64={retUrl}/>
+                            });
+                        }
                 }
+                FR.readAsDataURL(uploadedFile);
+            } else {
+                console.log("Please upload an image file in .png, .jpg or .jpeg format");
+            }
         }
-        FR.readAsDataURL(uploadedFile);
     }
     
     render () {
