@@ -3,16 +3,20 @@ import ImgPreview from '../imgPreview';
 import StatusComp from '../StatusComp';
 
 
-interface Props {
+interface Props 
+{
 }
 
-interface State {
+interface State 
+{
     base64?: string | ArrayBuffer,
     elemRet: JSX.Element
 }
 
-class App extends React.Component<Props, State> {
-    constructor(props: Props){
+class App extends React.Component<Props, State> 
+{
+    constructor(props: Props)
+    {
         super(props);
         this.state =  {
             elemRet: <></>,
@@ -21,7 +25,8 @@ class App extends React.Component<Props, State> {
         this.handleFiles = this.handleFiles.bind(this);
     }
     
-    handleFiles = (e: any) => {
+    handleFiles = (e: any) => 
+    {
         let retUrl;
         e.stopPropagation();
         e.preventDefault();
@@ -32,27 +37,35 @@ class App extends React.Component<Props, State> {
                 || uploadedFile.type === `image/jpg`)
             {
                 let FR = new FileReader();
-                FR.onloadstart = () => {
-                    this.setState({
-                        elemRet: <StatusComp loader="preview"/>
-                    });
+                FR.onloadstart = () => 
+                {
+                    this.setState(
+                        {
+                            elemRet: <StatusComp loader="preview"/>
+                        }
+                    );
                 }
-                FR.onloadend = ()=>{
+                FR.onloadend = () =>
+                {
                     retUrl =FR.result;
                     if(retUrl){
-                        this.setState({
-                            elemRet: <ImgPreview base64={retUrl}/>
-                        });
+                        this.setState(
+                            {
+                                elemRet: <ImgPreview base64={retUrl}/>
+                            }
+                        );
                     }
                 }
                 FR.readAsDataURL(uploadedFile);
-            } else {
+            } else 
+            {
                 console.log("Please upload an image file in .png, .jpg or .jpeg format");
             }
         }
     }
     
-    render (): JSX.Element {
+    render (): JSX.Element 
+    {
         return (
             <> 
                 <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles}/>
