@@ -1,23 +1,34 @@
 import * as React from "react";
-import { render } from "react-dom";
+//import { render } from "react-dom";
 
-interface Props {
-    loader: string
+interface State {
+    msg: JSX.Element
 }
 
-class StatusComp extends React.Component<Props> {
+interface Props {
+    loader?: string
+    error?: string
+}
+
+class StatusComp extends React.Component<Props, State> {
     constructor(props: Props){
         super(props);
     }
     
-        render(): JSX.Element{
-            if(this.props.loader && this.props.loader === "preview"){
-            return (
-                <p>Loading image...</p>
-                );
+
+    render(): JSX.Element{
+        let retElem: JSX.Element = <></>;
+        if(this.props.loader){
+            if(this.props.loader === "preview"){
+                retElem = <p>Loading image...</p>;
             }
-            return (<></>);
         }
+
+        if(this.props.error){
+            retElem = <p>{this.props.error}</p>;
+        }
+        return (retElem);
+    }
 
 }
 

@@ -59,7 +59,9 @@ class App extends React.Component<Props, State>
                 FR.readAsDataURL(uploadedFile);
             } else 
             {
-                console.log("Please upload an image file in .png, .jpg or .jpeg format");
+                this.setState({
+                    elemRet: <StatusComp error="Please upload an image file in .png, .jpg or .jpeg format"/>
+                });
             }
         }
     }
