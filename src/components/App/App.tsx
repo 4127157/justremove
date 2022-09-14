@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { typeOf } from 'react-is';
 import ImgPreview from '../imgPreview';
 import StatusComp from '../StatusComp';
 
@@ -9,8 +10,7 @@ interface Props
 
 interface State 
 {
-    base64?: string | ArrayBuffer,
-    elemRet: JSX.Element
+    elemRet: JSX.Element,
 }
 
 class App extends React.Component<Props, State> 
@@ -32,6 +32,13 @@ class App extends React.Component<Props, State>
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
         if(uploadedFile){
+            if( uploadedFile.size > 5242880){
+                this.setState((state, props) => (
+                {
+                    elemRet: <StatusComp error="Sorry, files larger than 5 MiB are not supported. Consider resizing."/>
+                }));
+                return;
+            }
             if( uploadedFile.type === `image/png`
                 || uploadedFile.type === `image/jpeg`
                 || uploadedFile.type === `image/jpg`)
@@ -71,7 +78,7 @@ class App extends React.Component<Props, State>
     {
         return (
             <> 
-                <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles}/>
+                <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles} />
                 {this.state.elemRet}
             </>
         );
