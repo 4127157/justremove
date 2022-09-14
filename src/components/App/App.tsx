@@ -39,15 +39,15 @@ class App extends React.Component<Props, State>
                 let FR = new FileReader();
                 FR.onloadstart = () => 
                 {
-                    this.setState(
+                    this.setState((state, props) =>( 
                         {
                             elemRet: <StatusComp loader="preview"/>
-                        }
+                        })
                     );
                 }
                 FR.onloadend = () =>
                 {
-                    retUrl =FR.result;
+                    retUrl = FR.result;
                     if(retUrl){
                         this.setState(
                             {
@@ -59,9 +59,10 @@ class App extends React.Component<Props, State>
                 FR.readAsDataURL(uploadedFile);
             } else 
             {
-                this.setState({
+                this.setState((state, props) => (
+                {
                     elemRet: <StatusComp error="Please upload an image file in .png, .jpg or .jpeg format"/>
-                });
+                }));
             }
         }
     }
