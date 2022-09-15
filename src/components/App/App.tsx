@@ -32,7 +32,7 @@ class App extends React.Component<Props, State>
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
         if(uploadedFile){
-            if( uploadedFile.size > 5242880){
+            if(uploadedFile.size > 5242880){
                 this.setState((state, props) => (
                 {
                     elemRet: <StatusComp error="Sorry, files larger than 5 MiB are not supported. Consider resizing."/>
