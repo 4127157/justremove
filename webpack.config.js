@@ -1,18 +1,30 @@
 const webpack = require('webpack');
 const path = require('path');
-/*const toml = require('toml');
-const yaml = require('yamljs');*/
 const json5 = require('json5');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-const config = {
+const serverConfig = {
+    target: 'node',
+    entry: {
+        server: {
+            import: './server/App.ts',
+        },
+    },
+    output: {
+        path: path.resolve(__dirname, 'dist'),
+        filename: 'nodeServer.js',
+        clean: true,
+    },
+};
+
+const clientConfig = {
   entry: {
       index: { 
           import: './src/index.tsx',
       },
       /*app: {
-          import:'./src/App.tsx',
+          import:'./server/App.ts',
       },*/
   },
   mode: 'development',
@@ -44,12 +56,6 @@ const config = {
   },
   module: {
     rules: [
-      /*{
-        test: /\.(js|jsx)$/,
-        include: path.resolve(__dirname, 'src'),
-        use: 'babel-loader',
-        exclude: /node_modules/
-      },*/
       {
         test: /\.less$/,
         use: [
@@ -72,20 +78,6 @@ const config = {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
       },
-      /*{
-        test: /\.toml$/i,
-        type: 'json',
-        parser: {
-          parse: toml.parse,
-        },
-      },
-      {
-        test: /\.yaml$/i,
-        type: 'json',
-        parser: {
-          parse: yaml.parse,
-        },
-      },*/
       {
         test: /\.json5$/i,
         type: 'json',
@@ -112,11 +104,8 @@ const config = {
     new MiniCssExtractPlugin({
         filename: './css/[name].css'
     }),
-    // new webpack.ProvidePlugin({
-    //     _: 'lodash',
-    // }),
   ],
 };
 
-module.exports = config;
+module.exports = [serverConfig,clientConfig];
 

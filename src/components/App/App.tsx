@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { typeOf } from 'react-is';
 import ImgPreview from '../imgPreview';
 import StatusComp from '../StatusComp';
 
