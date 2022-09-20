@@ -14,7 +14,6 @@ const serverConfig = {
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'nodeServer.js',
-        clean: true,
     },
 };
 
@@ -38,7 +37,7 @@ const clientConfig = {
     publicPath: 'auto',
     filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist'),
-    clean: true,
+    // clean: true,
   },
   optimization: {
       usedExports:true,
