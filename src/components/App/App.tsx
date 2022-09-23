@@ -23,7 +23,26 @@ class App extends React.Component<Props, State>
 
         this.handleFiles = this.handleFiles.bind(this);
     }
+
+    componentDidMount(): void {
+        this.sendToRemove = this.sendToRemove.bind(this);
+        fetch("http://localhost:7979", {
+                method: 'get'
+            })
+        .then(res => res.text())
+        .then(
+                (result) => {
+                    console.log(result);
+                },
+                (error) => {
+                    console.error(error);
+                }
+        );
+    }
     
+    sendToRemove = () => {
+        //Fetch here for removal of bg also test fetch
+    }
     handleFiles = (e: any) => 
     {
         let retUrl;
