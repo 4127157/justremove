@@ -4,14 +4,17 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const axios = require('axios').default;
 const cors = require('cors');
 const app = express();
-const port = process.env.PORT ;
+const port = process.env.PORT;
 
-app.use(cors());
+
+app.use(cors()); //Have to reconfigure when production, unsafe otherwise, look at docs!
 
 app.get('/', (req, res) => {
-    res.send('GET Request')
+    res.send('GET Request');
+    //res.json({});
 });
 
 app.post('/', (req,res) => {

@@ -9,7 +9,9 @@ interface Props
 
 interface State 
 {
+    imgData?: string | ArrayBuffer,
     elemRet: JSX.Element,
+    isPreviewReady: boolean,
 }
 
 class App extends React.Component<Props, State> 
@@ -19,16 +21,24 @@ class App extends React.Component<Props, State>
         super(props);
         this.state =  {
             elemRet: <></>,
+            isPreviewReady: false,
         } as State;
 
         this.handleFiles = this.handleFiles.bind(this);
     }
 
+    serverURL: string = "http://localhost:7979/";
+
     componentDidMount(): void {
         this.sendToRemove = this.sendToRemove.bind(this);
-        fetch("http://localhost:7979", {
-                method: 'get'
-            })
+    }
+    
+    sendToRemove = () => {
+        //Fetch here for removal of bg also test fetch
+        fetch(`{this.serverURL}:{this.state.imgData}`, {
+            method: 'PUT',
+            // cache: 'no-cache',
+        })
         .then(res => res.text())
         .then(
                 (result) => {
@@ -38,10 +48,6 @@ class App extends React.Component<Props, State>
                     console.error(error);
                 }
         );
-    }
-    
-    sendToRemove = () => {
-        //Fetch here for removal of bg also test fetch
     }
     handleFiles = (e: any) => 
     {
@@ -76,7 +82,9 @@ class App extends React.Component<Props, State>
                     if(retUrl){
                         this.setState(
                             {
-                                elemRet: <ImgPreview base64={retUrl}/>
+                                imgData: retUrl,
+                                elemRet: <ImgPreview base64={retUrl}/>,
+                                isPreviewReady: true,
                             }
                         );
                     }
@@ -94,10 +102,15 @@ class App extends React.Component<Props, State>
     
     render (): JSX.Element 
     {
+        let sendBtn;
+        if(this.state.isPreviewReady === true){
+            sendBtn = <button onClick={this.sendToRemove}>Remove Background</button>;
+        }
         return (
             <> 
                 <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles} />
                 {this.state.elemRet}
+                {sendBtn}
             </>
         );
     }

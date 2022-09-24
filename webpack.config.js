@@ -15,6 +15,18 @@ const serverConfig = {
         path: path.resolve(__dirname, 'dist'),
         filename: 'nodeServer.js',
     },
+    module: {
+        rules: [
+          {
+            test: /\.ts(x)?$/,
+            loader: 'ts-loader',
+            exclude: /node_modules/
+          },
+        ]
+    },
+    resolve: {
+        extensions: ['.tsx', '.ts', '.js' ],
+    },
 };
 
 const clientConfig = {
@@ -35,7 +47,8 @@ const clientConfig = {
   },
   output: {
     publicPath: 'auto',
-    filename: '[name].[contenthash].js',
+    // filename: '[name].[contenthash].js',
+    filename:'[name].js',
     path: path.resolve(__dirname, 'dist'),
     // clean: true,
   },
@@ -93,7 +106,7 @@ const clientConfig = {
       '.tsx',
       '.ts',
       '.js'
-    ]
+    ],
   },
   plugins: [
     new webpack.ContextReplacementPlugin(/moment[\/\\]locale$/, /en/),
