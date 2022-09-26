@@ -1,12 +1,12 @@
 import express, { Express, Request, Response } from 'express';
 const dotenv = require('dotenv');
-
-
 dotenv.config();
-
 const axios = require('axios').default;
 const cors = require('cors');
 const app = express();
+const mongodb = require('mongodb');
+const mongoose = require('mongoose');
+
 const port = process.env.PORT;
 
 
@@ -21,9 +21,16 @@ app.post('/', (req,res) => {
     res.send('POST Request');
 });
 
-
 app.put('/', (req,res) => {
     res.send('PUT Request');
+});
+
+app.put('/image', (req,res) => {
+    res.send('PUT Request with image data');
+});
+
+app.post('/image', (req,res) => {
+    res.send('POST Request with image data');
 });
 
 app.listen(port, () => {

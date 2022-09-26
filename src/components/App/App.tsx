@@ -27,7 +27,7 @@ class App extends React.Component<Props, State>
         this.handleFiles = this.handleFiles.bind(this);
     }
 
-    serverURL: string = "http://localhost:7979/";
+    serverURL: string = "http://localhost:7979";
 
     componentDidMount(): void {
         this.sendToRemove = this.sendToRemove.bind(this);
@@ -35,8 +35,13 @@ class App extends React.Component<Props, State>
     
     sendToRemove = () => {
         //Fetch here for removal of bg also test fetch
-        fetch(`{this.serverURL}:{this.state.imgData}`, {
-            method: 'PUT',
+        // let encoded = '';
+        // if(this.state.imgData){
+        //     let tempURI = this.state.imgData.toString();
+        //     encoded = encodeURIComponent(tempURI);
+        // }
+        fetch(`${this.serverURL}/image`, {
+            method: 'POST',
             // cache: 'no-cache',
         })
         .then(res => res.text())
