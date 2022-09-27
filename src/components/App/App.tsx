@@ -32,28 +32,41 @@ class App extends React.Component<Props, State>
     componentDidMount(): void {
         this.sendToRemove = this.sendToRemove.bind(this);
     }
+
+    resetStateElem = () => {
+        this.setState(()=>({
+            elemRet:<></>,
+        }));
+    }
+        
     
     sendToRemove = () => {
         //Fetch here for removal of bg also test fetch
-        // let encoded = '';
-        // if(this.state.imgData){
-        //     let tempURI = this.state.imgData.toString();
-        //     encoded = encodeURIComponent(tempURI);
-        // }
+        let dataJson = { "image_data": this.state.imgData, };
+        let bodyData = JSON.stringify(dataJson);
         fetch(`${this.serverURL}/image`, {
             method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: bodyData,
             // cache: 'no-cache',
         })
-        .then(res => res.text())
+        .then(res => {
+                this.resetStateElem();
+                return res.json(); 
+            })
         .then(
                 (result) => {
-                    console.log(result);
+                    let str = result.converted;
+                    this.setState(() => ({
+                        elemRet: <ImgPreview base64={str}/>
+                    }));
                 },
                 (error) => {
                     console.error(error);
                 }
         );
     }
+
     handleFiles = (e: any) => 
     {
         let retUrl;

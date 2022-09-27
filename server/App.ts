@@ -9,28 +9,15 @@ const mongoose = require('mongoose');
 
 const port = process.env.PORT;
 
+app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
+app.use(express.json({limit: '6mb'}));
 
-app.use(cors()); //Have to reconfigure when production, unsafe otherwise, look at docs!
-
-app.get('/', (req, res) => {
+app.get('/', (req: any, res: any) => {
     res.send('GET Request');
-    //res.json({});
 });
 
-app.post('/', (req,res) => {
-    res.send('POST Request');
-});
-
-app.put('/', (req,res) => {
-    res.send('PUT Request');
-});
-
-app.put('/image', (req,res) => {
-    res.send('PUT Request with image data');
-});
-
-app.post('/image', (req,res) => {
-    res.send('POST Request with image data');
+app.post('/image', (req: any,res: any) => {
+    res.send({"converted": req.body.image_data});
 });
 
 app.listen(port, () => {
