@@ -1,6 +1,7 @@
 import * as React from 'react';
 import ImgPreview from '../imgPreview';
 import StatusComp from '../StatusComp';
+import ImgOptions from '../imgOptions';
 
 
 interface Props 
@@ -28,6 +29,8 @@ class App extends React.Component<Props, State>
     }
 
     serverURL: string = "http://localhost:7979";
+    MAX_IMAGE_SIZE: number = 9_437_184;
+    MAX_SIZE_STR: string = '9 MiB';
 
     componentDidMount(): void {
         this.sendToRemove = this.sendToRemove.bind(this);
@@ -37,6 +40,10 @@ class App extends React.Component<Props, State>
         this.setState(()=>({
             elemRet:<></>,
         }));
+    }
+
+    handleImgOptions = (obj: Object) => {
+        this.sendToRemove;
     }
         
     
@@ -70,14 +77,15 @@ class App extends React.Component<Props, State>
     handleFiles = (e: any) => 
     {
         let retUrl;
+        let sizeStr = `Sorry, files larget than ${this.MAX_SIZE_STR} are not supported. Consider resizing.`;
         e.stopPropagation();
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
         if(uploadedFile){
-            if(uploadedFile.size > 5242880){
+            if(uploadedFile.size > this.MAX_IMAGE_SIZE){
                 this.setState((state, props) => (
                 {
-                    elemRet: <StatusComp error="Sorry, files larger than 5 MiB are not supported. Consider resizing."/>
+                    elemRet: <StatusComp error={sizeStr}/>
                 }));
                 return;
             }
@@ -120,15 +128,15 @@ class App extends React.Component<Props, State>
     
     render (): JSX.Element 
     {
-        let sendBtn;
+        let options;
         if(this.state.isPreviewReady === true){
-            sendBtn = <button onClick={this.sendToRemove}>Remove Background</button>;
+            options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
         return (
             <> 
                 <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles} />
                 {this.state.elemRet}
-                {sendBtn}
+                {options}
             </>
         );
     }
