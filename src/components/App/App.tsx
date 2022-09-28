@@ -43,6 +43,7 @@ class App extends React.Component<Props, State>
     }
 
     handleImgOptions = (obj: Object) => {
+        console.log(obj);
         this.sendToRemove;
     }
         
