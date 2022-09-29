@@ -6,8 +6,9 @@ interface State {
 }
 
 interface Props {
-    loader?: string
-    error?: string
+    loader?: string,
+    error?: string,
+    processing?: string,
 }
 
 class StatusComp extends React.Component<Props, State> {
@@ -22,11 +23,16 @@ class StatusComp extends React.Component<Props, State> {
             if(this.props.loader === "preview"){
                 retElem = <p>Loading image...</p>;
             }
+
+            if(this.props.loader === "processing"){
+                retElem = <p>Processing image, do not refresh...</p>;
+            }
         }
 
         if(this.props.error){
             retElem = <p>{this.props.error}</p>;
         }
+
         return (retElem);
     }
 

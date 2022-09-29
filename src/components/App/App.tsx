@@ -43,15 +43,22 @@ class App extends React.Component<Props, State>
     }
 
     handleImgOptions = (obj: Object) => {
-        console.log(obj);
-        this.sendToRemove();
+        this.sendToRemove(obj);
     }
         
     
-    sendToRemove = () => {
+    sendToRemove = (obj: Object) => {
         //Fetch here for removal of bg also test fetch
-        let dataJson = { "image_data": this.state.imgData, };
+        let dataJson = {
+            options: obj,
+            image_data: this.state.imgData,
+        };
         let bodyData = JSON.stringify(dataJson);
+        
+        this.setState({
+            elemRet: <StatusComp loader='processing'/>,
+        });
+
         fetch(`${this.serverURL}/image`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -65,7 +72,6 @@ class App extends React.Component<Props, State>
         .then(
                 (result) => {
                     let str = result.converted;
-                    console.log("reached here" + str.substring(0,24));
                     this.setState(() => ({
                         elemRet: <ImgPreview base64={str}/>
                     }));
