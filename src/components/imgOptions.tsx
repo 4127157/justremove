@@ -10,7 +10,7 @@ interface State
 }
 
 type ImageValues = {
-    bg_color?: string,
+    [key: string]: string,
 }
 
 class ImgOptions extends React.Component<Props, State> 
@@ -20,16 +20,15 @@ class ImgOptions extends React.Component<Props, State>
         this.state = {
         } as State;
 
-    this.selectedColor = this.selectedColor.bind(this);
+    this.selectedOptions = this.selectedOptions.bind(this);
     }
     builtObj: ImageValues = {};
     
-    selectedColor = (e: React.ChangeEvent<HTMLInputElement>) => {
+    selectedOptions = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         e.stopPropagation();
 
-        
-        this.builtObj.bg_color = e.target.value;
+        this.builtObj[e.target.name] = e.target.value;
     }
 
     submitValues = () => {
@@ -39,11 +38,11 @@ class ImgOptions extends React.Component<Props, State>
 
     render() {
         return (
-                <>
-                <input type='radio' value="white" name="bg_color" onChange={this.selectedColor}/>white
-                <input type='radio' value="transparent" name="bg_color" onChange={this.selectedColor}/>transparent
-                <button onClick={this.submitValues}>Remove Background</button>
-                </>
+                <div onChange={this.selectedOptions}>
+                    <input type='radio' value="white" name="bg_color" />white
+                    <input type='radio' value="transparent" name="bg_color" />transparent
+                    <button onClick={this.submitValues}>Remove Background</button>
+                </div>
             );
     }
 }

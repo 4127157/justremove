@@ -44,7 +44,7 @@ class App extends React.Component<Props, State>
 
     handleImgOptions = (obj: Object) => {
         console.log(obj);
-        this.sendToRemove;
+        this.sendToRemove();
     }
         
     
@@ -65,6 +65,7 @@ class App extends React.Component<Props, State>
         .then(
                 (result) => {
                     let str = result.converted;
+                    console.log("reached here" + str.substring(0,24));
                     this.setState(() => ({
                         elemRet: <ImgPreview base64={str}/>
                     }));
@@ -78,7 +79,7 @@ class App extends React.Component<Props, State>
     handleFiles = (e: any) => 
     {
         let retUrl;
-        let sizeStr = `Sorry, files larget than ${this.MAX_SIZE_STR} are not supported. Consider resizing.`;
+        let sizeStr = `Sorry, files larger than ${this.MAX_SIZE_STR} are not supported. Consider resizing.`;
         e.stopPropagation();
         e.preventDefault();
         let uploadedFile: File = e.target.files[0];
@@ -86,7 +87,8 @@ class App extends React.Component<Props, State>
             if(uploadedFile.size > this.MAX_IMAGE_SIZE){
                 this.setState((state, props) => (
                 {
-                    elemRet: <StatusComp error={sizeStr}/>
+                    elemRet: <StatusComp error={sizeStr}/>,
+                    isPreviewReady: false,
                 }));
                 return;
             }
