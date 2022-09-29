@@ -22,7 +22,7 @@ app.post('/image', (req: any,res: any) => {
     if(gateBool === true){
         setTimeout(() => res.send({"converted": req.body.image_data}), 1500);
     } else {
-        res.send({error: "Invalid Input"});
+        res.status(500).send({error: "Invalid Input"});
     }
 });
 
@@ -35,7 +35,6 @@ type InputBody = {
 }
 
 function bodyValidator(body: InputBody){
-    console.log(typeof(body.image_data));
     let checker = 0;
     
     if(typeof(body) === 'object'){
@@ -46,7 +45,7 @@ function bodyValidator(body: InputBody){
         checker++;
     }
 
-    if(body.image_data){
+    if(body.image_data && typeof(body.image_data)){
         checker++;
     }
 
@@ -69,6 +68,5 @@ function bodyValidator(body: InputBody){
         
         checker++;
     }
-    console.log(checker);
-    return true;
+    return checker == 6 ? true : false;
 }

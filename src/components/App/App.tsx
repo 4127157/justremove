@@ -65,21 +65,30 @@ class App extends React.Component<Props, State>
             body: bodyData,
             // cache: 'no-cache',
         })
-        .then(res => {
-                this.resetStateElem();
-                return res.json(); 
-            })
-        .then(
-                (result) => {
-                    let str = result.converted;
-                    this.setState(() => ({
-                        elemRet: <ImgPreview base64={str}/>
-                    }));
-                },
-                (error) => {
-                    console.error(error);
+        .then((res) => {
+                if(res.ok) { 
+                    this.resetStateElem();
+                    return res.json(); 
+                } 
+                else {
+                    throw new Error('Something went wrong');
                 }
-        );
+            })
+        .then((result) => {
+                    if(!result.error){
+                        let str = result.converted;
+                        this.setState(() => ({
+                            elemRet: <ImgPreview base64={str}/>
+                        }));
+                    }
+            })
+        .catch((error) => {
+                    console.error(error);
+                    this.setState({
+                        elemRet: <StatusComp error="Invalid input or server encountered an error"/>,
+                    });
+                }
+            );
     }
 
     handleFiles = (e: any) => 
