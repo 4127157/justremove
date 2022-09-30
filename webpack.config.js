@@ -1,11 +1,12 @@
 const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 const json5 = require('json5');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const serverConfig = {
-    target: 'node',
+    // target: 'node',
     entry: {
         server: {
             import: './server/App.ts',
@@ -27,9 +28,12 @@ const serverConfig = {
     resolve: {
         extensions: ['.tsx', '.ts', '.js' ],
     },
+    externalsPresets: {node: true},
+    externals: [nodeExternals()],
 };
 
 const clientConfig = {
+  target: "web",
   entry: {
       index: { 
           import: './src/index.tsx',

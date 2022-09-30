@@ -9,6 +9,10 @@ const mongoose = require('mongoose');
 
 const port = process.env.PORT;
 
+type InputBody = {
+    [key: string]: any,
+}
+
 app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
 app.use(express.json({limit: '10mb'}));
 
@@ -17,7 +21,6 @@ app.get('/', (req: any, res: any) => {
 });
 
 app.post('/image', (req: any,res: any) => {
-    console.log(req.body.options);
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
         setTimeout(() => res.send({"converted": req.body.image_data}), 1500);
@@ -30,8 +33,20 @@ app.listen(port, () => {
     console.log(`[server]: Server is running at https://localhost:${port}`);
 });
 
-type InputBody = {
-    [key: string]: any,
+function apiSelector(options: InputBody) {
+    if(options.to_remove === 'foreground'){
+        return 'objectcut'; //https://rapidapi.com/objectcut.api/api/background-removal
+    }
+    if(options.bg_color === 'white' 
+        && options.to_remove === 'background'){
+        return 'objectcut';
+    }
+    if(options.bg_color === 'transparent'
+        && options.to_remove === 'background'
+        && (options.fg_options === '' || options.fg_options === 'fg-image')){
+        return 'objectcut';
+    }
+    return 'a4aBGR'; //https://rapidapi.com/api4ai-api4ai-default/api/background-removal4    
 }
 
 function bodyValidator(body: InputBody){
@@ -45,7 +60,7 @@ function bodyValidator(body: InputBody){
         checker++;
     }
 
-    if(body.image_data && typeof(body.image_data)){
+    if(body.image_data && typeof(body.image_data) === 'string'){
         checker++;
     }
 

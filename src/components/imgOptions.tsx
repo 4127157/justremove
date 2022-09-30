@@ -1,3 +1,4 @@
+import { type } from "os";
 import * as React from "react";
 
 interface Props
@@ -28,7 +29,7 @@ class ImgOptions extends React.Component<Props, State>
         e.stopPropagation();
         let sKey = e.target.name;
         let val = e.target.value;
-        if(val === 'foreground'){
+        if(val === 'foreground' || val === 'white'){
             this.setState({
                 fg_options: '',
             });
@@ -50,7 +51,7 @@ class ImgOptions extends React.Component<Props, State>
                 <option value="">--Select an Option--</option>
             </select>
         </>;
-        if(this.state.to_remove === 'background'){
+        if(this.state.to_remove === 'background' && this.state.bg_color !== 'white'){
             retElem =
             <>
                 <label htmlFor='fg_options'>FG Options: </label>
