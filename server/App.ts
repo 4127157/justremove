@@ -7,6 +7,10 @@ const app = express();
 const fs = require('fs');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
+const { customAlphabet } = require('nanoid');
+const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
+const nanoid = customAlphabet(alphabet, 14);
+const FormData = require("form-data");
 
 const port = process.env.PORT;
 
@@ -14,6 +18,9 @@ type InputBody = {
     [key: string]: any,
 }
 
+type AnyObj = {
+    [key:string]: any,
+};
 app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
 app.use(express.json({limit: '10mb'}));
 
@@ -48,7 +55,7 @@ function objectCutCall(body: InputBody){
         url: process.env.OBJECTCUT_URL,
         headers: {
             'content-type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': process.env.OBJECTCUT_KEY,
+            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
             'X-RapidAPI-Host': process.env.OBJECTCUT_HOST,
         },
         data: encodedParams,
@@ -63,44 +70,88 @@ function objectCutCall(body: InputBody){
     });
 }
 
-function a4aBGRCall(body: InputBody){
+function a4aBGRCall(prefix:string, filename:string, fgMode: string){
+    let data = new FormData();
+    data.append("image", fs.createReadStream(filename));
 
-    let base64_MARK = ';base64,';
-    let base64Index = body.image_data.indexOf(base64_MARK) + base64_MARK.length;
-    let base64_true = body.image_data.substring(base64Index);
+    let options = {
+        method: 'POST',
+        url: process.env.A4ABGR_URL,
+        params: {
+            mode: fgMode,
+        },
+        headers: {
+            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+            'X-RapidAPI-Host': process.env.A4ABGR_HOST,
+            ...data.getHeaders(),
+        },
+        data: data,
+    };
+
+    axios.request(options)
+    .then((response: any) => {
+        //do something
+        //delete file permanently
+    })
+    .catch((error: any) => {
+        //pass error to errorhandler to frontend
+    });
+
 }
 
-async function finalizeCalls(body: InputBody){
+function finalizeCalls(body: InputBody){
     let api = apiSelector(body.options);
 
     if(api === 'objectcut'){
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
+        let a4aObj = base64ToFile(body.image_data);
+        
+        if(a4aObj !== 'Invalid String'
+          && typeof(a4aObj) === 'object'
+          && a4aObj.fName 
+          && a4aObj.pFix)
+        {
+            a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options);
+        } else {
+            //send to some error handler that sends to frontend
+        }
+        
         console.log("make a4aBGR call");
     }
     let temp= '';
-    let donebool = false;
-    let data = body.image_data;
-    let buff =Buffer.from(data, 'base64');
-    fs.writeFileSync('temporary_file', buff);
-    let reader = fs.createReadStream('temporary_file', {
-        flag:'a+',
-        encoding: 'base64',
-    });
-
-    reader.on('data', function (chunk:any) {
-        console.log('reached here');
-        temp+= chunk;
-    });
-
-    reader.on('end', () => {
-        console.log('value of temp is' + temp.slice(0, 40));
-        return temp;
-    });
 
     return temp;
-    // return temp;
+}
+
+function base64ToFile(str: string){
+    let rand_str = nanoid();
+    //Convert the base64 string to a file to send to a4abgr api
+    let match = str.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    let resp: AnyObj= {};
+    if(match?.length !== 3){
+        return "Invalid String";
+    }
+
+    resp.type = match[1];
+    resp.data = Buffer.from(match[2], 'base64');
+    let tempFname = '';
+    let preStr = match[0].slice(0, match[0].indexOf(',')+1);
+    if(resp.type === 'image/jpeg'){
+        fs.writeFileSync(`./${rand_str}.jpg`, resp.data);
+        tempFname = `./${rand_str}.jpg`;
+    }
+    if(resp.type === 'image/png'){
+        fs.writeFileSync(`./${rand_str}.png`, resp.data);
+        tempFname = `./${rand_str}.png`;
+    }
+    let retObj = {
+        pFix: preStr,
+        fName: tempFname,
+    };
+    return retObj;
+    // let buff = Buffer.from(str, 'base64');
 }
 
 function apiSelector(options: InputBody) {
