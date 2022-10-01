@@ -14,9 +14,9 @@ const FormData = require("form-data");
 
 const port = process.env.PORT;
 
-type InputBody = {
-    [key: string]: any,
-}
+// type InputBody = {
+//     [key: string]: any,
+// }
 
 type AnyObj = {
     [key:string]: any,
@@ -43,7 +43,7 @@ app.listen(port, () => {
 });
 
 //Have to separate calls in their classes separately
-function objectCutCall(body: InputBody){
+function objectCutCall(body: AnyObj){
     let encodedParams = new URLSearchParams();
     encodedParams.append("image_base64", body.image_data);
     encodedParams.append("to_remove", body.options.to_remove);
@@ -99,7 +99,7 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string){
 
 }
 
-function finalizeCalls(body: InputBody){
+function finalizeCalls(body: AnyObj){
     let api = apiSelector(body.options);
 
     if(api === 'objectcut'){
@@ -154,7 +154,7 @@ function base64ToFile(str: string){
     // let buff = Buffer.from(str, 'base64');
 }
 
-function apiSelector(options: InputBody) {
+function apiSelector(options: AnyObj) {
     if(options.to_remove === 'foreground'){
         return 'objectcut'; //https://rapidapi.com/objectcut.api/api/background-removal
     }
@@ -170,7 +170,7 @@ function apiSelector(options: InputBody) {
     return 'a4aBGR'; //https://rapidapi.com/api4ai-api4ai-default/api/background-removal4    
 }
 
-function bodyValidator(body: InputBody){
+function bodyValidator(body: AnyObj){
     let checker = 0;
     
     if(typeof(body) === 'object'){
