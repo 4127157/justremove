@@ -64,6 +64,7 @@ function objectCutCall(body: AnyObj){
     axios.request(options)
     .then((response: any) => {
         //do something with response
+        //increment tracker in DB
     })
     .catch((error: any) => {
         //send error to frontend
@@ -92,6 +93,7 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string){
     .then((response: any) => {
         //do something
         //delete file permanently
+        //increment tracker in DB
     })
     .catch((error: any) => {
         //pass error to errorhandler to frontend
