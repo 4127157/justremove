@@ -138,15 +138,15 @@ function base64ToFile(str: string){
 
     resp.type = match[1];
     resp.data = Buffer.from(match[2], 'base64');
-    let tempFname = '';
+    let tempFname = __dirname;
     let preStr = match[0].slice(0, match[0].indexOf(',')+1);
     if(resp.type === 'image/jpeg'){
         fs.writeFileSync(`./${rand_str}.jpg`, resp.data);
-        tempFname = `./${rand_str}.jpg`;
+        tempFname += `./${rand_str}.jpg`;
     }
     if(resp.type === 'image/png'){
         fs.writeFileSync(`./${rand_str}.png`, resp.data);
-        tempFname = `./${rand_str}.png`;
+        tempFname += `./${rand_str}.png`;
     }
     let retObj = {
         pFix: preStr,
