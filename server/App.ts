@@ -21,6 +21,9 @@ const port = process.env.PORT;
 type AnyObj = {
     [key:string]: any,
 };
+var errorBool = false;
+var errorMsg: string | any = '';
+
 app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
 app.use(express.json({limit: '10mb'}));
 
@@ -32,7 +35,13 @@ app.post('/image', (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
         let converted_image:any = finalizeCalls(req.body);
-        setTimeout(() => res.send({"converted": converted_image}), 1500);
+        if(errorBool === false){
+            setTimeout(() => res.send({"converted": converted_image}), 1500);
+        } else {
+            res.status(500).send({error: errorMsg});
+            errorBool = false;
+            errorMsg = '';
+        }
     } else {
         res.status(500).send({error: "Invalid Input"});
     }
@@ -60,14 +69,29 @@ function objectCutCall(body: AnyObj){
         },
         data: encodedParams,
     };
+    function getPrefix(str: string){
+        let temp = str.slice(0, (str.indexOf(',')+1));
+        return temp;
+    }
     
     axios.request(options)
     .then((response: any) => {
         //do something with response
         //increment tracker in DB
+        //getPrefix(body.image_data) + response.data.response.image_base64
+        if(response.data.response.image_base64){
+            return `${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`;
+        } else {
+            errorBool = true;
+            errorMsg = "Error occured in objectcut API call";
+            return;
+        }
     })
     .catch((error: any) => {
         //send error to frontend
+        errorBool = true;
+        errorMsg = "Error occured in objectcut API call \n" + error;
+        return; 
     });
 }
 
@@ -97,14 +121,18 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string){
     })
     .catch((error: any) => {
         //pass error to errorhandler to frontend
+        errorBool = true;
+        errorMsg = "Error occured in a4aBGR API call \n" + error;
     });
 
 }
 
 function finalizeCalls(body: AnyObj){
     let api = apiSelector(body.options);
+    let temp: any= '';
 
     if(api === 'objectcut'){
+        temp = objectCutCall(body);
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
@@ -117,12 +145,12 @@ function finalizeCalls(body: AnyObj){
         {
             a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options);
         } else {
-            //send to some error handler that sends to frontend
+            errorBool = true;
+            errorMsg = "Error occured in file conversion";
         }
         
         console.log("make a4aBGR call");
     }
-    let temp= '';
 
     return temp;
 }
