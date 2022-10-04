@@ -12,6 +12,8 @@ const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxy
 const nanoid = customAlphabet(alphabet, 14);
 const FormData = require("form-data");
 
+const db = mongoose.connection;
+
 const port = process.env.PORT;
 
 // type InputBody = {
@@ -34,10 +36,25 @@ app.get('/', (req: any, res: any) => {
 app.post('/image', (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
-        let converted_image:any = finalizeCalls(req.body);
+        // let converted_image:any = finalizeCalls(req.body);
+    connectDB().catch(error => {
+        console.log("Error on DB connection:")
+        console.log(error);
+        errorBool = true;
+        errorMsg = `Error on DB connectionL: ${error}`;
+    });
+    db.on("error", () => {
+        errorBool = true;
+        errorMsg = "There seems to be an error connecting with the database";
+    });
+    db.once("open", () => {
+        console.log("connection to database successful");
+    });
         if(errorBool === false){
-            setTimeout(() => res.send({"converted": converted_image}), 1500);
+            //setTimeout(() => res.send({"converted": converted_image}), 1500);
+            setTimeout(() => res.send({"error": "placeholder error for DB test"}), 1500);
         } else {
+            console.log("Connection error reaching");
             res.status(500).send({error: errorMsg});
             errorBool = false;
             errorMsg = '';
@@ -50,6 +67,22 @@ app.post('/image', (req: any,res: any) => {
 app.listen(port, () => {
     console.log(`[server]: Server is running at https://localhost:${port}`);
 });
+
+
+async function connectDB(){
+    const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
+    const password = encodeURIComponent(process.env.MONGO_PASSWORD as string);
+    const dbCluster = process.env.MONGO_CLUSTER;
+    const dbName = process.env.MONGO_DBNAME;
+    const mongoURI = `mongodb+srv://${username}:${password}@${dbCluster}/${dbName}?retryWrites=true&w=majority`;
+    await mongoose
+    .connect(mongoURI,
+        {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+        }
+    );
+}
 
 //Have to separate calls in their classes separately
 function objectCutCall(body: AnyObj){
@@ -121,6 +154,7 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string){
     })
     .catch((error: any) => {
         //pass error to errorhandler to frontend
+        //delete file permanently
         errorBool = true;
         errorMsg = "Error occured in a4aBGR API call \n" + error;
     });

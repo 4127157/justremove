@@ -82,6 +82,11 @@ class App extends React.Component<Props, State>
                         this.setState(() => ({
                             elemRet: <ImgPreview base64={str}/>
                         }));
+                    } else if(result.error){
+                        console.log(result.error);
+                        this.setState({
+                            elemRet: <StatusComp error={result.error}/>,
+                        });
                     }
             })
         .catch((error) => {
