@@ -79,8 +79,12 @@ const CallTrackerSchema = new Schema({
     reset_date: Date,
 }); //If today is reset date then calls_month = 0, reset_date += 30 days
 
-const OCModel = mongoose.model("OCTracker", CallTrackerSchema);
-const A4AModel = mongoose.model("A4ATracker", CallTrackerSchema);
+const TrackerModel = mongoose.model("TrackerModel", CallTrackerSchema);
+
+// const OC_instance = new TrackerModel({<properties go here>});
+// const A4A_instance = new TrackerModel({<properties go here>});
+// ^^ Each data call function to utilise these to change the record in the
+// functions each.
 
 async function connectDB(){
     const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
