@@ -7,6 +7,7 @@ const app = express();
 const fs = require('fs');
 const mongodb = require('mongodb');
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 const { customAlphabet } = require('nanoid');
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
 const nanoid = customAlphabet(alphabet, 14);
@@ -19,6 +20,12 @@ const port = process.env.PORT;
 // type InputBody = {
 //     [key: string]: any,
 // }
+/*TODO: 
+* Full refactor
+* classify every function
+* purify functions
+* simplify error handling, remove global error object for monolithic catch
+* able to pass on response object to functions that can send res on their own*/
 
 type AnyObj = {
     [key:string]: any,
@@ -43,10 +50,7 @@ app.post('/image', (req: any,res: any) => {
         errorBool = true;
         errorMsg = `Error on DB connectionL: ${error}`;
     });
-    db.on("error", () => {
-        errorBool = true;
-        errorMsg = "There seems to be an error connecting with the database";
-    });
+    db.on("error",  console.error.bind(console, "MongoDB Connection Error"));
     db.once("open", () => {
         console.log("connection to database successful");
     });
@@ -68,6 +72,15 @@ app.listen(port, () => {
     console.log(`[server]: Server is running at https://localhost:${port}`);
 });
 
+const CallTrackerSchema = new Schema({
+    calls_month: Number,
+    calls_total: Number,
+    last_call_date: Date,
+    reset_date: Date,
+}); //If today is reset date then calls_month = 0, reset_date += 30 days
+
+const OCModel = mongoose.model("OCTracker", CallTrackerSchema);
+const A4AModel = mongoose.model("A4ATracker", CallTrackerSchema);
 
 async function connectDB(){
     const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
