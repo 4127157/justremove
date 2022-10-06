@@ -43,6 +43,7 @@ app.get('/', (req: any, res: any) => {
 app.post('/image', (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
+        finalizeCalls(req.body);
         // let converted_image:any = finalizeCalls(req.body);
     connectDB().catch(error => {
         console.log("Error on DB connection:")
@@ -103,46 +104,61 @@ async function connectDB(){
 
 //Have to separate calls in their classes separately
 function objectCutCall(body: AnyObj){
-    let encodedParams = new URLSearchParams();
-    encodedParams.append("image_base64", body.image_data);
-    encodedParams.append("to_remove", body.options.to_remove);
-    encodedParams.append("output_format", "base64");
-    encodedParams.append("color_removal", body.options.bg_color);
+    const OC_instance = new TrackerModel(
+        {
+            calls_month: 9,
+            calls_total: 9,
+            last_call_date: Date.now(),
+            reset_date: Date.now(),
+        });
 
-    let options = {
-        method: 'POST',
-        url: process.env.OBJECTCUT_URL,
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded',
-            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-            'X-RapidAPI-Host': process.env.OBJECTCUT_HOST,
-        },
-        data: encodedParams,
-    };
-    function getPrefix(str: string){
-        let temp = str.slice(0, (str.indexOf(',')+1));
-        return temp;
-    }
-    
-    axios.request(options)
-    .then((response: any) => {
-        //do something with response
-        //increment tracker in DB
-        //getPrefix(body.image_data) + response.data.response.image_base64
-        if(response.data.response.image_base64){
-            return `${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`;
-        } else {
+    OC_instance.save((err: any) => {
+        if(err) {
             errorBool = true;
-            errorMsg = "Error occured in objectcut API call";
-            return;
+            errorMsg = "Error saving model";
+            console.log("there was an error");
         }
-    })
-    .catch((error: any) => {
-        //send error to frontend
-        errorBool = true;
-        errorMsg = "Error occured in objectcut API call \n" + error;
-        return; 
     });
+    //let encodedParams = new URLSearchParams();
+    //encodedParams.append("image_base64", body.image_data);
+    //encodedParams.append("to_remove", body.options.to_remove);
+    //encodedParams.append("output_format", "base64");
+    //encodedParams.append("color_removal", body.options.bg_color);
+
+    //let options = {
+    //    method: 'POST',
+    //    url: process.env.OBJECTCUT_URL,
+    //    headers: {
+    //        'content-type': 'application/x-www-form-urlencoded',
+    //        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+    //        'X-RapidAPI-Host': process.env.OBJECTCUT_HOST,
+    //    },
+    //    data: encodedParams,
+    //};
+    //function getPrefix(str: string){
+    //    let temp = str.slice(0, (str.indexOf(',')+1));
+    //    return temp;
+    //}
+    
+    //axios.request(options)
+    //.then((response: any) => {
+    //    //do something with response
+    //    //increment tracker in DB
+    //    //getPrefix(body.image_data) + response.data.response.image_base64
+    //    if(response.data.response.image_base64){
+    //        return `${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`;
+    //    } else {
+    //        errorBool = true;
+    //        errorMsg = "Error occured in objectcut API call";
+    //        return;
+    //    }
+    //})
+    //.catch((error: any) => {
+    //    //send error to frontend
+    //    errorBool = true;
+    //    errorMsg = "Error occured in objectcut API call \n" + error;
+    //    return; 
+    //});
 }
 
 function a4aBGRCall(prefix:string, filename:string, fgMode: string){
@@ -183,22 +199,23 @@ function finalizeCalls(body: AnyObj){
     let temp: any= '';
 
     if(api === 'objectcut'){
-        temp = objectCutCall(body);
+        objectCutCall(body);
+        //temp = objectCutCall(body);
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
-        let a4aObj = base64ToFile(body.image_data);
+        // let a4aObj = base64ToFile(body.image_data);
         
-        if(a4aObj !== 'Invalid String'
-          && typeof(a4aObj) === 'object'
-          && a4aObj.fName 
-          && a4aObj.pFix)
-        {
-            a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options);
-        } else {
-            errorBool = true;
-            errorMsg = "Error occured in file conversion";
-        }
+        // if(a4aObj !== 'Invalid String'
+        //   && typeof(a4aObj) === 'object'
+        //   && a4aObj.fName 
+        //   && a4aObj.pFix)
+        // {
+        //     a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options);
+        // } else {
+        //     errorBool = true;
+        //     errorMsg = "Error occured in file conversion";
+        // }
         
         console.log("make a4aBGR call");
     }
