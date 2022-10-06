@@ -80,7 +80,7 @@ const CallTrackerSchema = new Schema({
     reset_date: Date,
 }); //If today is reset date then calls_month = 0, reset_date += 30 days
 
-const TrackerModel = mongoose.model("TrackerModel", CallTrackerSchema);
+// const TrackerModel = mongoose.model("TrackerModel", CallTrackerSchema);
 
 // const OC_instance = new TrackerModel({<properties go here>});
 // const A4A_instance = new TrackerModel({<properties go here>});
@@ -102,9 +102,19 @@ async function connectDB(){
     );
 }
 
-//Have to separate calls in their classes separately
-function objectCutCall(body: AnyObj){
-    const OC_instance = new TrackerModel(
+function docDBUpdate(num:number){
+    let doc_name;
+    if(num === 1){
+        doc_name = "OC_Call";
+    } else {
+        doc_name = "A4A_Call";
+    }
+    //get the objectcut document
+    //update the calls month and calls_total
+    //check for reset date and update if necessary
+
+    const CallModel = mongoose.model(doc_name, CallTrackerSchema);
+    const Call_instance = new CallModel(
         {
             calls_month: 9,
             calls_total: 9,
@@ -112,13 +122,18 @@ function objectCutCall(body: AnyObj){
             reset_date: Date.now(),
         });
 
-    OC_instance.save((err: any) => {
+    Call_instance.save((err: any) => {
         if(err) {
             errorBool = true;
             errorMsg = "Error saving model";
             console.log("there was an error");
         }
     });
+}
+
+//Have to separate calls in their classes separately
+function objectCutCall(body: AnyObj){
+    docDBUpdate(1);
     //let encodedParams = new URLSearchParams();
     //encodedParams.append("image_base64", body.image_data);
     //encodedParams.append("to_remove", body.options.to_remove);
@@ -162,35 +177,36 @@ function objectCutCall(body: AnyObj){
 }
 
 function a4aBGRCall(prefix:string, filename:string, fgMode: string){
-    let data = new FormData();
-    data.append("image", fs.createReadStream(filename));
+    docDBUpdate(2);
+    //let data = new FormData();
+    //data.append("image", fs.createReadStream(filename));
 
-    let options = {
-        method: 'POST',
-        url: process.env.A4ABGR_URL,
-        params: {
-            mode: fgMode,
-        },
-        headers: {
-            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-            'X-RapidAPI-Host': process.env.A4ABGR_HOST,
-            ...data.getHeaders(),
-        },
-        data: data,
-    };
+    //let options = {
+    //    method: 'POST',
+    //    url: process.env.A4ABGR_URL,
+    //    params: {
+    //        mode: fgMode,
+    //    },
+    //    headers: {
+    //        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+    //        'X-RapidAPI-Host': process.env.A4ABGR_HOST,
+    //        ...data.getHeaders(),
+    //    },
+    //    data: data,
+    //};
 
-    axios.request(options)
-    .then((response: any) => {
-        //do something
-        //delete file permanently
-        //increment tracker in DB
-    })
-    .catch((error: any) => {
-        //pass error to errorhandler to frontend
-        //delete file permanently
-        errorBool = true;
-        errorMsg = "Error occured in a4aBGR API call \n" + error;
-    });
+    //axios.request(options)
+    //.then((response: any) => {
+    //    //do something
+    //    //delete file permanently
+    //    //increment tracker in DB
+    //})
+    //.catch((error: any) => {
+    //    //pass error to errorhandler to frontend
+    //    //delete file permanently
+    //    errorBool = true;
+    //    errorMsg = "Error occured in a4aBGR API call \n" + error;
+    //});
 
 }
 
@@ -204,6 +220,7 @@ function finalizeCalls(body: AnyObj){
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
+        a4aBGRCall('','','');
         // let a4aObj = base64ToFile(body.image_data);
         
         // if(a4aObj !== 'Invalid String'
