@@ -74,6 +74,7 @@ app.listen(port, () => {
 });
 
 const CallTrackerSchema = new Schema({
+    name: String,
     calls_month: Number,
     calls_total: Number,
     last_call_date: Date,
@@ -106,6 +107,7 @@ function docDBUpdate(num:number){
     let doc_name;
     if(num === 1){
         doc_name = "OC_Call";
+
     } else {
         doc_name = "A4A_Call";
     }
@@ -116,6 +118,7 @@ function docDBUpdate(num:number){
     const CallModel = mongoose.model(doc_name, CallTrackerSchema);
     const Call_instance = new CallModel(
         {
+            name: doc_name,
             calls_month: 9,
             calls_total: 9,
             last_call_date: Date.now(),
