@@ -13,6 +13,8 @@ const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxy
 const nanoid = customAlphabet(alphabet, 14);
 const FormData = require("form-data");
 
+const OCCallModel = require("./models/OC_Call_Model");
+const A4ACallModel = require("./models/A4A_Call_Model");
 const db = mongoose.connection;
 
 const port = process.env.PORT;
@@ -73,13 +75,13 @@ app.listen(port, () => {
     console.log(`[server]: Server is running at https://localhost:${port}`);
 });
 
-const CallTrackerSchema = new Schema({
-    name: String,
-    calls_month: Number,
-    calls_total: Number,
-    last_call_date: Date,
-    reset_date: Date,
-}); //If today is reset date then calls_month = 0, reset_date += 30 days
+// const CallTrackerSchema = new Schema({
+//     name: String,
+//     calls_month: Number,
+//     calls_total: Number,
+//     last_call_date: Date,
+//     reset_date: Date,
+// }); //If today is reset date then calls_month = 0, reset_date += 30 days
 
 // const TrackerModel = mongoose.model("TrackerModel", CallTrackerSchema);
 
@@ -106,32 +108,15 @@ async function connectDB(){
 function docDBUpdate(num:number){
     let doc_name;
     if(num === 1){
-        doc_name = "OC_Call";
+        //Find in OCCallModel name "OC_Call"
 
     } else {
-        doc_name = "A4A_Call";
+        //Find in A4ACallModel name "A4A_Call"
     }
     //get the objectcut document
     //update the calls month and calls_total
     //check for reset date and update if necessary
 
-    const CallModel = mongoose.model(doc_name, CallTrackerSchema);
-    const Call_instance = new CallModel(
-        {
-            name: doc_name,
-            calls_month: 9,
-            calls_total: 9,
-            last_call_date: Date.now(),
-            reset_date: Date.now(),
-        });
-
-    Call_instance.save((err: any) => {
-        if(err) {
-            errorBool = true;
-            errorMsg = "Error saving model";
-            console.log("there was an error");
-        }
-    });
 }
 
 //Have to separate calls in their classes separately
