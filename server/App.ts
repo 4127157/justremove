@@ -13,8 +13,8 @@ const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxy
 const nanoid = customAlphabet(alphabet, 14);
 const FormData = require("form-data");
 
-const OCCallModel = require("./models/OC_Call_Model");
-const A4ACallModel = require("./models/A4A_Call_Model");
+import { OCCallModel } from  "./models/OC_Call_Model";
+import { A4ACallModel } from "./models/A4A_Call_Model";
 const db = mongoose.connection;
 
 const port = process.env.PORT;
@@ -109,9 +109,17 @@ function docDBUpdate(num:number){
     let doc_name;
     if(num === 1){
         //Find in OCCallModel name "OC_Call"
+        //Update with findOneAndUpdate or separate update 
+        OCCallModel.findOne({name: "OC_Call"}, (err: any, oc_call: any) => {
+            console.log(oc_call);
+        });
 
     } else {
         //Find in A4ACallModel name "A4A_Call"
+        //Update with findOneAndUpdate or separate update 
+        A4ACallModel.findOne({name: "A4A_Call"}, (err: any, a4a_call: any) => {
+            console.log(a4a_call);
+        });
     }
     //get the objectcut document
     //update the calls month and calls_total
