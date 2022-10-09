@@ -116,7 +116,7 @@ function docDBUpdate(num:number){
 
     } else {
         //Find in A4ACallModel name "A4A_Call"
-        //Update with findOneAndUpdate or separate update 
+        //Update with findOneAndUpdate or separate update function
         A4ACallModel.findOne({name: "A4A_Call"}, (err: any, a4a_call: any) => {
             console.log(a4a_call);
         });
