@@ -7,7 +7,7 @@ import cors from 'cors';
 const app = express();
 import fs from 'fs';
 import mongodb from 'mongodb';
-import mongoose from 'mongoose';
+const mongoose = require('mongoose'); //Not being converted to ES6 because of TS err (no overload matches this call)
 const { Schema } = mongoose;
 import { customAlphabet } from 'nanoid';
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
@@ -69,7 +69,7 @@ app.post('/image', (req: any,res: any) => {
             errorMsg = '';
         }
     } else {
-        res.status(500).send({error: "Invalid Input"});
+        handleError("Invalid input", res);
     }
 });
 
@@ -92,6 +92,9 @@ app.listen(port, () => {
 // ^^ Each data call function to utilise these to change the record in the
 // functions each.
 
+function handleError(err: any, res:any) {
+    res.status(500).send("An error occured:" + err);
+}
 async function connectDB(){
     const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
     const password = encodeURIComponent(process.env.MONGO_PASSWORD as string);
