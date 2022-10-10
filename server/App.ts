@@ -1,17 +1,18 @@
 import express, { Express, Request, Response } from 'express';
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 dotenv.config();
+import helmet from 'helmet';
 const axios = require('axios').default;
-const cors = require('cors');
+import cors from 'cors';
 const app = express();
-const fs = require('fs');
-const mongodb = require('mongodb');
-const mongoose = require('mongoose');
+import fs from 'fs';
+import mongodb from 'mongodb';
+import mongoose from 'mongoose';
 const { Schema } = mongoose;
-const { customAlphabet } = require('nanoid');
+import { customAlphabet } from 'nanoid';
 const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz';
 const nanoid = customAlphabet(alphabet, 14);
-const FormData = require("form-data");
+import FormData from "form-data";
 
 import { OCCallModel } from  "./models/OC_Call_Model";
 import { A4ACallModel } from "./models/A4A_Call_Model";
@@ -35,6 +36,7 @@ type AnyObj = {
 var errorBool = false;
 var errorMsg: string | any = '';
 
+app.use(helmet());
 app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
 app.use(express.json({limit: '10mb'}));
 
