@@ -47,7 +47,7 @@ app.get('/', (req: any, res: any) => {
 app.post('/image', (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
-        finalizeCalls(req.body);
+        finalizeCalls(req.body, res);
         // let converted_image:any = finalizeCalls(req.body);
     connectDB().catch(error => {
         console.log("Error on DB connection:")
@@ -69,7 +69,11 @@ app.post('/image', (req: any,res: any) => {
             errorMsg = '';
         }
     } else {
-        handleError("Invalid input", res);
+        try {
+            handleError("Invalid input", res);
+        } catch(error){
+            console.error(error);
+        }
     }
 });
 
@@ -94,6 +98,7 @@ app.listen(port, () => {
 
 function handleError(err: any, res:any) {
     res.status(500).send("An error occured:" + err);
+    throw err;
 }
 async function connectDB(){
     const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
@@ -133,7 +138,7 @@ function docDBUpdate(num:number){
 }
 
 //Have to separate calls in their classes separately
-function objectCutCall(body: AnyObj){
+function objectCutCall(body: AnyObj, res: any){
     docDBUpdate(1);
     //let encodedParams = new URLSearchParams();
     //encodedParams.append("image_base64", body.image_data);
@@ -177,7 +182,7 @@ function objectCutCall(body: AnyObj){
     //});
 }
 
-function a4aBGRCall(prefix:string, filename:string, fgMode: string){
+function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
     docDBUpdate(2);
     //let data = new FormData();
     //data.append("image", fs.createReadStream(filename));
@@ -211,17 +216,17 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string){
 
 }
 
-function finalizeCalls(body: AnyObj){
+function finalizeCalls(body: AnyObj, res:any){
     let api = apiSelector(body.options);
     let temp: any= '';
 
     if(api === 'objectcut'){
-        objectCutCall(body);
+        objectCutCall(body, res);
         //temp = objectCutCall(body);
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
-        a4aBGRCall('','','');
+        a4aBGRCall('','','', res);
         // let a4aObj = base64ToFile(body.image_data);
         
         // if(a4aObj !== 'Invalid String'
@@ -241,7 +246,7 @@ function finalizeCalls(body: AnyObj){
     return temp;
 }
 
-function base64ToFile(str: string){
+function base64ToFile(str: string, res: any){
     let rand_str = nanoid();
     //Convert the base64 string to a file to send to a4abgr api
     let match = str.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
