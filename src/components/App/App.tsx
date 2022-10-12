@@ -66,13 +66,10 @@ class App extends React.Component<Props, State>
             // cache: 'no-cache',
         })
         .then((res) => {
-                if(res.ok) { 
+                if(res.ok){
                     this.resetStateElem();
-                    return res.json(); 
-                } 
-                else {
-                    throw new Error('Something went wrong');
                 }
+                return res.json();
             })
         .then((result) => {
                     if(!result.error){

@@ -98,7 +98,7 @@ app.listen(port, () => {
 // functions each.
 
 async function handleError(err: any, res:any) {
-    res.status(500).send("An error occured:" + err);
+    res.status(500).send({"error" : `An error occured: ${err}`});
     throw new Error(err);
 }
 async function connectDB(){
@@ -141,6 +141,8 @@ function docDBUpdate(num:number){
 //Have to separate calls in their classes separately
 function objectCutCall(body: AnyObj, res: any){
     docDBUpdate(1);
+    handleError("Made objectCutCall error", res)
+    .catch(e => console.error("oc call placeholder"));
     //let encodedParams = new URLSearchParams();
     //encodedParams.append("image_base64", body.image_data);
     //encodedParams.append("to_remove", body.options.to_remove);
