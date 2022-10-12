@@ -33,8 +33,7 @@ const port = process.env.PORT;
 type AnyObj = {
     [key:string]: any,
 };
-var errorBool = false;
-var errorMsg: string | any = '';
+
 
 app.use(helmet());
 app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
@@ -47,33 +46,35 @@ app.get('/', (req: any, res: any) => {
 app.post('/image', (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
-        finalizeCalls(req.body, res);
-        // let converted_image:any = finalizeCalls(req.body);
-    connectDB().catch(error => {
-        console.log("Error on DB connection:")
-        console.log(error);
-        errorBool = true;
-        errorMsg = `Error on DB connectionL: ${error}`;
+    connectDB()
+    .catch(e => {
+        handleError(e, res)
+        .catch(e => {
+            console.error(`[server] Error in connection to DB ${e}`);
+        });
     });
-    db.on("error",  console.error.bind(console, "MongoDB Connection Error"));
+    db.on("error", () => {
+        console.error.bind(console, "[database]: MongoDB Connection Error");
+        handleError("[database]: MongoDB Connection Error", res);
+    });
     db.once("open", () => {
-        console.log("connection to database successful");
+        console.log("[database]: connection to database successful");
+        finalizeCalls(req.body, res);
     });
-        if(errorBool === false){
-            //setTimeout(() => res.send({"converted": converted_image}), 1500);
-            setTimeout(() => res.send({"error": "placeholder error for DB test"}), 1500);
-        } else {
-            console.log("Connection error reaching");
-            res.status(500).send({error: errorMsg});
-            errorBool = false;
-            errorMsg = '';
-        }
+        //if(errorBool === false){
+        //    //setTimeout(() => res.send({"converted": converted_image}), 1500);
+        //    setTimeout(() => res.send({"error": "placeholder error for DB test"}), 1500);
+        //} else {
+        //    console.log("Connection error reaching");
+        //    res.status(500).send({error: errorMsg});
+        //    errorBool = false;
+        //    errorMsg = '';
+        //}
     } else {
-        try {
-            handleError("Invalid input", res);
-        } catch(error){
-            console.error(error);
-        }
+        handleError("Invalid input", res).catch(e => {
+            console.log("[server]: An error occured");
+            console.error(`[server]: ${e}`);
+        });
     }
 });
 
@@ -96,7 +97,7 @@ app.listen(port, () => {
 // ^^ Each data call function to utilise these to change the record in the
 // functions each.
 
-function handleError(err: any, res:any) {
+async function handleError(err: any, res:any) {
     res.status(500).send("An error occured:" + err);
     throw new Error(err);
 }
