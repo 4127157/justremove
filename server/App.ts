@@ -98,7 +98,7 @@ app.listen(port, () => {
 
 function handleError(err: any, res:any) {
     res.status(500).send("An error occured:" + err);
-    throw err;
+    throw new Error(err);
 }
 async function connectDB(){
     const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
