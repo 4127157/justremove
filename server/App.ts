@@ -124,6 +124,7 @@ async function docDBUpdate(num:number){
         let filter = { name: "OC_Call" };
         let doc = await OCCallModel.findOne(filter);
         console.log(doc);
+        console.log(Math.ceil((new Date().getTime() - new Date(doc.reset_date).getTime())/(1000*3600*24)));
         let update = {
             calls_total: ((doc.calls_total) + 1),
             last_call_date: Date.now(),
@@ -141,11 +142,18 @@ async function docDBUpdate(num:number){
     //get the objectcut document
     //update the calls month and calls_total
     //check for reset date and update if necessary
+    //
+    //return true if enough calls left for the month and false if not, if false
+    //then do not process call and send error to frontend that limit has
+    //exceeded and try different options
 
 }
 
 //Have to separate calls in their classes separately
 function objectCutCall(body: AnyObj, res: any){
+    //First check if there are enough calls in month for this API available to
+    //make calls then update with a separate function or params in the
+    //docDBUpdate function
     docDBUpdate(1);
     handleError("Made objectCutCall error", res)
     .catch(e => console.error("oc call placeholder"));
