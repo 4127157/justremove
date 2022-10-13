@@ -116,21 +116,27 @@ async function connectDB(){
     );
 }
 
-function docDBUpdate(num:number){
+async function docDBUpdate(num:number){
     let doc_name;
     if(num === 1){
         //Find in OCCallModel name "OC_Call"
         //Update with findOneAndUpdate or separate update 
-        OCCallModel.findOne({name: "OC_Call"}, (err: any, oc_call: any) => {
-            console.log(oc_call);
-        });
+        let filter = { name: "OC_Call" };
+        let doc = await OCCallModel.findOne(filter);
+        console.log(doc);
+        let update = {
+            calls_total: ((doc.calls_total) + 1),
+            last_call_date: Date.now(),
+        };
+        let updatedDoc = await OCCallModel.findOneAndUpdate(filter, update, { new: true });
+        console.log(updatedDoc);
 
     } else {
         //Find in A4ACallModel name "A4A_Call"
         //Update with findOneAndUpdate or separate update function
-        A4ACallModel.findOne({name: "A4A_Call"}, (err: any, a4a_call: any) => {
-            console.log(a4a_call);
-        });
+        let filter = { name: "A4A_Call" };
+        let doc = await A4ACallModel.findOne(filter);
+        console.log(doc);
     }
     //get the objectcut document
     //update the calls month and calls_total
