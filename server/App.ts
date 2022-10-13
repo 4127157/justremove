@@ -19,6 +19,8 @@ import { A4ACallModel } from "./models/A4A_Call_Model";
 const db = mongoose.connection;
 
 const port = process.env.PORT;
+const OBJECTCUT_LIMIT = 50;
+const A4A_LIMIT = 25;
 
 // type InputBody = {
 //     [key: string]: any,
@@ -146,6 +148,27 @@ async function docDBUpdate(num:number){
     //return true if enough calls left for the month and false if not, if false
     //then do not process call and send error to frontend that limit has
     //exceeded and try different options
+
+}
+
+async function checkDBAvailability(num: number){
+    if(num === 1) {
+        let filter = { name: "OC_Call" };
+        let doc = await OCCallModel.findOne(filter);
+        if(doc.calls_month <= OBJECTCUT_LIMIT){
+            return true;
+        } else {
+            throw new Error("API Calls exhausted: ObjectCut. Try different options");
+        }
+    } else {
+        let filter = { name: "A4A_Call" };
+        let doc = await A4ACallModel.findOne(filter);
+        if(doc.calls_month <= A4A_LIMIT){
+            return true;
+        } else {
+            throw new Error("API Calls exhausted: ObjectCut. Try different options");
+        }
+    }
 
 }
 
