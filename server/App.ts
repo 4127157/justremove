@@ -118,15 +118,14 @@ async function connectDB(){
     );
 }
 
-async function docDBUpdate(num:number){
-    let doc_name;
+async function docDBUpdate(num:number, res: any){
     if(num === 1){
         //Find in OCCallModel name "OC_Call"
         //Update with findOneAndUpdate or separate update 
         let filter = { name: "OC_Call" };
         let doc = await OCCallModel.findOne(filter);
         console.log(doc);
-        console.log(Math.ceil((new Date().getTime() - new Date(doc.reset_date).getTime())/(1000*3600*24)));
+        console.log();
         let update = {
             calls_total: ((doc.calls_total) + 1),
             last_call_date: Date.now(),
@@ -141,6 +140,21 @@ async function docDBUpdate(num:number){
         let doc = await A4ACallModel.findOne(filter);
         console.log(doc);
     }
+
+    function update(doc:any, filter: AnyObj){
+        let daysPassed = Math.ceil((new Date().getTime() - new Date(doc.reset_date).getTime())/(1000*3600*24));
+        let retObj: AnyObj = {};
+        retObj.last_call_date = Date.now();
+        if(daysPassed < 30){
+            retObj.calls_total = ((doc.calls_total) + 1);
+            retObj.calls_month = ((doc.calls_month) + 1);
+        } else {
+            retObj.calls_total = 1;
+            retObj.calls_month = 1;
+            retObj.reset_date = Date.now();
+        }
+        return retObj;
+    }
     //get the objectcut document
     //update the calls month and calls_total
     //check for reset date and update if necessary
@@ -148,7 +162,6 @@ async function docDBUpdate(num:number){
     //return true if enough calls left for the month and false if not, if false
     //then do not process call and send error to frontend that limit has
     //exceeded and try different options
-
 }
 
 async function checkDBAvailability(num: number){
@@ -166,7 +179,7 @@ async function checkDBAvailability(num: number){
         if(doc.calls_month <= A4A_LIMIT){
             return true;
         } else {
-            throw new Error("API Calls exhausted: ObjectCut. Try different options");
+            throw new Error("API Calls exhausted: A4ABGR. Try different options");
         }
     }
 
@@ -177,49 +190,61 @@ function objectCutCall(body: AnyObj, res: any){
     //First check if there are enough calls in month for this API available to
     //make calls then update with a separate function or params in the
     //docDBUpdate function
-    docDBUpdate(1);
+    checkDBAvailability(1)
+    .then((val) => {
+        console.log(`[database]: Calls available`);
+        console.log(val);
+        //makeCall();
+    })
+    .catch(e => {
+        handleError(e, res)
+        .catch(e => console.error('[database]: ' + e));
+    });
+    /*docDBUpdate(1);
     handleError("Made objectCutCall error", res)
-    .catch(e => console.error("oc call placeholder"));
-    //let encodedParams = new URLSearchParams();
-    //encodedParams.append("image_base64", body.image_data);
-    //encodedParams.append("to_remove", body.options.to_remove);
-    //encodedParams.append("output_format", "base64");
-    //encodedParams.append("color_removal", body.options.bg_color);
+    .catch(e => console.error("oc call placeholder " + e));*/
+    function makeCall() {
+        let encodedParams = new URLSearchParams();
+        encodedParams.append("image_base64", body.image_data);
+        encodedParams.append("to_remove", body.options.to_remove);
+        encodedParams.append("output_format", "base64");
+        encodedParams.append("color_removal", body.options.bg_color);
 
-    //let options = {
-    //    method: 'POST',
-    //    url: process.env.OBJECTCUT_URL,
-    //    headers: {
-    //        'content-type': 'application/x-www-form-urlencoded',
-    //        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-    //        'X-RapidAPI-Host': process.env.OBJECTCUT_HOST,
-    //    },
-    //    data: encodedParams,
-    //};
-    //function getPrefix(str: string){
-    //    let temp = str.slice(0, (str.indexOf(',')+1));
-    //    return temp;
-    //}
-    
-    //axios.request(options)
-    //.then((response: any) => {
-    //    //do something with response
-    //    //increment tracker in DB
-    //    //getPrefix(body.image_data) + response.data.response.image_base64
-    //    if(response.data.response.image_base64){
-    //        return `${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`;
-    //    } else {
-    //        errorBool = true;
-    //        errorMsg = "Error occured in objectcut API call";
-    //        return;
-    //    }
-    //})
-    //.catch((error: any) => {
-    //    //send error to frontend
-    //    errorBool = true;
-    //    errorMsg = "Error occured in objectcut API call \n" + error;
-    //    return; 
-    //});
+        let options = {
+            method: 'POST',
+            url: process.env.OBJECTCUT_URL,
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded',
+                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+                'X-RapidAPI-Host': process.env.OBJECTCUT_HOST,
+            },
+            data: encodedParams,
+        };
+        function getPrefix(str: string){
+            let temp = str.slice(0, (str.indexOf(',')+1));
+            return temp;
+        }
+        
+        axios.request(options)
+        .then((response: any) => {
+            //do something with response
+            //increment tracker in DB
+            if(response.data.response.image_base64){
+                //docDBUpdate(1);
+                let convertedObj = { "converted": (`${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`), };
+                console.log(convertedObj);
+            } else {
+                handleError("Error from ObjectCut API in response data", res)
+                .catch(e => console.error(e));
+                return;
+            }
+        })
+        .catch((error: any) => {
+            //send error to frontend
+            handleError(error, res);
+            return; 
+        });
+    }
 }
 
 function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
