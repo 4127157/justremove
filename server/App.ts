@@ -16,6 +16,7 @@ import FormData from "form-data";
 
 import { OCCallModel } from  "./models/OC_Call_Model";
 import { A4ACallModel } from "./models/A4A_Call_Model";
+import { update } from 'lodash';
 const db = mongoose.connection;
 
 const port = process.env.PORT;
@@ -100,8 +101,9 @@ app.listen(port, () => {
 // functions each.
 
 async function handleError(err: any, res:any) {
+    console.error(err);
     res.status(500).send({"error" : `An error occured: ${err}`});
-    throw new Error(err);
+    // throw new Error(err);
 }
 async function connectDB(){
     const username = encodeURIComponent(process.env.MONGO_USERNAME as string);
@@ -124,32 +126,42 @@ async function docDBUpdate(num:number, res: any){
         //Update with findOneAndUpdate or separate update 
         let filter = { name: "OC_Call" };
         let doc = await OCCallModel.findOne(filter);
-        console.log(doc);
-        console.log();
-        let update = {
-            calls_total: ((doc.calls_total) + 1),
-            last_call_date: Date.now(),
-        };
-        let updatedDoc = await OCCallModel.findOneAndUpdate(filter, update, { new: true });
-        console.log(updatedDoc);
+        let updateObj = update(doc);
+        await OCCallModel.findOneAndUpdate(filter, updateObj, { new: true })
+        .then((result: any) => {
+            console.log(result);
+            return;
+        })
+        .catch((e: any) => {
+            handleError(e, res).catch(e => console.error(`[database]: ${e}`));
+            return;
+        });
 
     } else {
         //Find in A4ACallModel name "A4A_Call"
         //Update with findOneAndUpdate or separate update function
         let filter = { name: "A4A_Call" };
         let doc = await A4ACallModel.findOne(filter);
-        console.log(doc);
+        let updateObj = update(doc);
+        await A4ACallModel.findOneAndUpdate(filter, updateObj, { new: true })
+        .then((result: any) => {
+            console.log(result);
+            return;
+        })
+        .catch((e: any) => {
+            handleError(e, res).catch(e => console.error(`[database]: ${e}`));
+            return;
+        });
     }
 
-    function update(doc:any, filter: AnyObj){
+    function update(doc:any){
         let daysPassed = Math.ceil((new Date().getTime() - new Date(doc.reset_date).getTime())/(1000*3600*24));
         let retObj: AnyObj = {};
+        retObj.calls_total = ((doc.calls_total) + 1);
         retObj.last_call_date = Date.now();
         if(daysPassed < 30){
-            retObj.calls_total = ((doc.calls_total) + 1);
             retObj.calls_month = ((doc.calls_month) + 1);
         } else {
-            retObj.calls_total = 1;
             retObj.calls_month = 1;
             retObj.reset_date = Date.now();
         }
@@ -189,7 +201,6 @@ async function checkDBAvailability(num: number){
 function objectCutCall(body: AnyObj, res: any){
     //First check if there are enough calls in month for this API available to
     //make calls then update with a separate function or params in the
-    //docDBUpdate function
     checkDBAvailability(1)
     .then((val) => {
         console.log(`[database]: Calls available`);
@@ -200,9 +211,7 @@ function objectCutCall(body: AnyObj, res: any){
         handleError(e, res)
         .catch(e => console.error('[database]: ' + e));
     });
-    /*docDBUpdate(1);
-    handleError("Made objectCutCall error", res)
-    .catch(e => console.error("oc call placeholder " + e));*/
+
     function makeCall() {
         let encodedParams = new URLSearchParams();
         encodedParams.append("image_base64", body.image_data);
@@ -227,10 +236,8 @@ function objectCutCall(body: AnyObj, res: any){
         
         axios.request(options)
         .then((response: any) => {
-            //do something with response
-            //increment tracker in DB
             if(response.data.response.image_base64){
-                //docDBUpdate(1);
+                docDBUpdate(1, res);
                 let convertedObj = { "converted": (`${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`), };
                 console.log(convertedObj);
             } else {
@@ -248,36 +255,40 @@ function objectCutCall(body: AnyObj, res: any){
 }
 
 function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
-    docDBUpdate(2);
-    //let data = new FormData();
-    //data.append("image", fs.createReadStream(filename));
+    docDBUpdate(2, res);
+    let data = new FormData();
+    try {
+        let stream = fs.createReadStream(filename);
+        data.append("image", stream);
+    } catch (error) {
+        handleError(`Error in read stream: ${error}`, res);
+    }
 
-    //let options = {
-    //    method: 'POST',
-    //    url: process.env.A4ABGR_URL,
-    //    params: {
-    //        mode: fgMode,
-    //    },
-    //    headers: {
-    //        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-    //        'X-RapidAPI-Host': process.env.A4ABGR_HOST,
-    //        ...data.getHeaders(),
-    //    },
-    //    data: data,
-    //};
+    let options = {
+        method: 'POST',
+        url: process.env.A4ABGR_URL,
+        params: {
+            mode: fgMode,
+        },
+        headers: {
+            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+            'X-RapidAPI-Host': process.env.A4ABGR_HOST,
+            ...data.getHeaders(),
+        },
+        data: data,
+    };
 
-    //axios.request(options)
-    //.then((response: any) => {
-    //    //do something
-    //    //delete file permanently
-    //    //increment tracker in DB
-    //})
-    //.catch((error: any) => {
-    //    //pass error to errorhandler to frontend
-    //    //delete file permanently
-    //    errorBool = true;
-    //    errorMsg = "Error occured in a4aBGR API call \n" + error;
-    //});
+    axios.request(options)
+    .then((response: any) => {
+        //do something
+        //delete file permanently
+        //increment tracker in DB
+    })
+    .catch((error: any) => {
+        //pass error to errorhandler to frontend
+        //delete file permanently
+         handleError("Error occured in a4aBGR API call \n" + error, res);
+    });
 
 }
 
@@ -291,19 +302,19 @@ function finalizeCalls(body: AnyObj, res:any){
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
-        a4aBGRCall('','','', res);
-        // let a4aObj = base64ToFile(body.image_data);
+        //a4aBGRCall('','','', res);
+        let a4aObj = base64ToFile(body.image_data, res);
         
-        // if(a4aObj !== 'Invalid String'
-        //   && typeof(a4aObj) === 'object'
-        //   && a4aObj.fName 
-        //   && a4aObj.pFix)
-        // {
-        //     a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options);
-        // } else {
-        //     errorBool = true;
-        //     errorMsg = "Error occured in file conversion";
-        // }
+        if(a4aObj !== 'Invalid String'
+          && typeof(a4aObj) === 'object'
+          && a4aObj.fName 
+          && a4aObj.pFix)
+        {
+            a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options, res);
+        } else {
+             handleError("Error occured in file conversion", res)
+             .catch(e => console.error(`[server]: ${e}`));
+        }
         
         console.log("make a4aBGR call");
     }
