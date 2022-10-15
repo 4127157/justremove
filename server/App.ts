@@ -29,9 +29,7 @@ const A4A_LIMIT = 25;
 /*TODO: 
 * Full refactor
 * classify every function
-* purify functions
-* simplify error handling, remove global error object for monolithic catch
-* able to pass on response object to functions that can send res on their own*/
+* purify functions*/
 
 type AnyObj = {
     [key:string]: any,
@@ -167,13 +165,6 @@ async function docDBUpdate(num:number, res: any){
         }
         return retObj;
     }
-    //get the objectcut document
-    //update the calls month and calls_total
-    //check for reset date and update if necessary
-    //
-    //return true if enough calls left for the month and false if not, if false
-    //then do not process call and send error to frontend that limit has
-    //exceeded and try different options
 }
 
 async function checkDBAvailability(num: number){
@@ -205,13 +196,15 @@ function objectCutCall(body: AnyObj, res: any){
     .then((val) => {
         console.log(`[database]: OC Calls available`);
         console.log(val);
-        //makeCall();
+        makeCall();
     })
     .catch(e => handleError(`[database]: ${e}`, res));
 
     function makeCall() {
+
+        let match = body.image_data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         let encodedParams = new URLSearchParams();
-        encodedParams.append("image_base64", body.image_data);
+        encodedParams.append("image_base64", match[2]);
         encodedParams.append("to_remove", body.options.to_remove);
         encodedParams.append("output_format", "base64");
         encodedParams.append("color_removal", body.options.bg_color);
@@ -233,18 +226,20 @@ function objectCutCall(body: AnyObj, res: any){
         
         axios.request(options)
         .then((response: any) => {
+            console.log(response);
             if(response.data.response.image_base64){
                 docDBUpdate(1, res);
                 let convertedObj = { "converted": (`${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`), };
+                res.send(convertedObj);
                 console.log(convertedObj);
             } else {
-                handleError("Error from ObjectCut API in response data", res)
-                .catch(e => console.error(e));
+                handleError("Error from ObjectCut API in response data", res);
                 return;
             }
         })
         .catch((error: any) => {
             //send error to frontend
+            docDBUpdate(1, res);
             handleError(error, res);
             return; 
         });
@@ -259,41 +254,56 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
         //makeCall();
     })
     .catch( e => handleError(`[database]: ${e}`, res));
-    docDBUpdate(2, res);
-    let data = new FormData();
-    try {
-        let stream = fs.createReadStream(filename);
-        data.append("image", stream);
-    } catch (error) {
-        handleError(`Error in read stream: ${error}`, res);
+    function makeCall(){
+        let data = new FormData();
+        try {
+            let stream = fs.createReadStream(filename);
+            data.append("image", stream);
+        } catch (error) {
+            handleError(`Error in read stream: ${error}`, res);
+        }
+
+        let options = {
+            method: 'POST',
+            url: process.env.A4ABGR_URL,
+            params: {
+                mode: fgMode,
+            },
+            headers: {
+                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+                'X-RapidAPI-Host': process.env.A4ABGR_HOST,
+                ...data.getHeaders(),
+            },
+            data: data,
+        };
+
+        axios.request(options)
+        .then((response: any) => {
+            //do something
+            //delete file permanently
+            //increment tracker in DB
+            docDBUpdate(2, res);
+            try{
+                fs.unlinkSync(filename);
+                console.info(`[FS] File removed: ${filename}`);
+            } catch (e){
+                handleError(e, res);
+            }
+            console.log(response);
+        })
+        .catch((error: any) => {
+            //pass error to errorhandler to frontend
+            //delete file permanently
+            docDBUpdate(2, res);
+            try{
+                fs.unlinkSync(filename);
+                console.info(`[FS] File removed: ${filename}`);
+            } catch (e){
+                handleError(`[FS]: ${e}`, res);
+            }
+             handleError("Error occured in a4aBGR API call \n" + error, res);
+        });
     }
-
-    let options = {
-        method: 'POST',
-        url: process.env.A4ABGR_URL,
-        params: {
-            mode: fgMode,
-        },
-        headers: {
-            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-            'X-RapidAPI-Host': process.env.A4ABGR_HOST,
-            ...data.getHeaders(),
-        },
-        data: data,
-    };
-
-    axios.request(options)
-    .then((response: any) => {
-        //do something
-        //delete file permanently
-        //increment tracker in DB
-    })
-    .catch((error: any) => {
-        //pass error to errorhandler to frontend
-        //delete file permanently
-         handleError("Error occured in a4aBGR API call \n" + error, res)
-         .catch(e => console.error(`[API]: ${e}`));
-    });
 
 }
 
