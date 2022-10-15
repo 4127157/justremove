@@ -203,14 +203,11 @@ function objectCutCall(body: AnyObj, res: any){
     //make calls then update with a separate function or params in the
     checkDBAvailability(1)
     .then((val) => {
-        console.log(`[database]: Calls available`);
+        console.log(`[database]: OC Calls available`);
         console.log(val);
         //makeCall();
     })
-    .catch(e => {
-        handleError(e, res)
-        .catch(e => console.error('[database]: ' + e));
-    });
+    .catch(e => handleError(`[database]: ${e}`, res));
 
     function makeCall() {
         let encodedParams = new URLSearchParams();
@@ -255,6 +252,13 @@ function objectCutCall(body: AnyObj, res: any){
 }
 
 function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
+    checkDBAvailability(2)
+    .then((val) => {
+        console.log(`[database]: A4A Calls available`);
+        console.log(val);
+        //makeCall();
+    })
+    .catch( e => handleError(`[database]: ${e}`, res));
     docDBUpdate(2, res);
     let data = new FormData();
     try {
@@ -287,7 +291,8 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
     .catch((error: any) => {
         //pass error to errorhandler to frontend
         //delete file permanently
-         handleError("Error occured in a4aBGR API call \n" + error, res);
+         handleError("Error occured in a4aBGR API call \n" + error, res)
+         .catch(e => console.error(`[API]: ${e}`));
     });
 
 }
