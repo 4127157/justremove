@@ -61,10 +61,14 @@ class App extends React.Component<Props, State>
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
         return (
-            <> 
-                <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles} />
-                {this.state.elemRet}
-                {options}
+            <>
+                <div className='img-preview-container'>
+                    {this.state.elemRet}
+                    <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles} />
+                </div>
+                <div className='img-options-container'>
+                    {options}
+                </div>
             </>
         );
     }
