@@ -73,9 +73,7 @@ class App extends React.Component<Props, State>
             })
         .then((result) => {
                     if(!result.error){
-                        console.log(result);
                         let str = result.converted;
-                        //console.log(str);
                         this.setState(() => ({
                             elemRet: <ImgPreview base64={str}/>
                         }));

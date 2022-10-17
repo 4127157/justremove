@@ -29,7 +29,10 @@ const A4A_LIMIT = 25;
 /*TODO: 
 * Full refactor
 * classify every function
-* purify functions*/
+* purify functions
+* Implement URL based conversions
+* Ideally but optionally implement body segmentation locally (virtually unlimited calls):  https://github.com/tensorflow/tfjs-models/tree/master/body-segmentation
+* ^^^^ Could be a separate API altogether */
 
 type AnyObj = {
     [key:string]: any,
@@ -47,30 +50,24 @@ app.get('/', (req: any, res: any) => {
 app.post('/image', (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
-    connectDB()
-    .catch(e => {
-        handleError(e, res)
+        connectDB()
         .catch(e => {
-            console.error(`[server] Error in connection to DB ${e}`);
+            handleError(e, res)
+            .catch(e => {
+                console.error(`[server] Error in connection to DB ${e}`);
+            });
         });
-    });
-    db.on("error", () => {
-        console.error.bind(console, "[database]: MongoDB Connection Error");
-        handleError("[database]: MongoDB Connection Error", res);
-    });
-    db.once("open", () => {
-        console.log("[database]: connection to database successful");
-        finalizeCalls(req.body, res);
-    });
-        //if(errorBool === false){
-        //    //setTimeout(() => res.send({"converted": converted_image}), 1500);
-        //    setTimeout(() => res.send({"error": "placeholder error for DB test"}), 1500);
-        //} else {
-        //    console.log("Connection error reaching");
-        //    res.status(500).send({error: errorMsg});
-        //    errorBool = false;
-        //    errorMsg = '';
-        //}
+        db.on("error", () => {
+            console.error.bind(console, "[database]: MongoDB Connection Error");
+            handleError("[database]: MongoDB Connection Error", res);
+        });
+        db.once("open", () => {
+            console.log("[database]: connection to database successful");
+            //finalizeCalls(req.body, res);
+        });
+
+        setTimeout( () => res.send({converted: req.body.image_data}), 2000);
+
     } else {
         handleError("Invalid input", res).catch(e => {
             console.log("[server]: An error occured");
@@ -82,21 +79,6 @@ app.post('/image', (req: any,res: any) => {
 app.listen(port, () => {
     console.log(`[server]: Server is running at https://localhost:${port}`);
 });
-
-// const CallTrackerSchema = new Schema({
-//     name: String,
-//     calls_month: Number,
-//     calls_total: Number,
-//     last_call_date: Date,
-//     reset_date: Date,
-// }); //If today is reset date then calls_month = 0, reset_date += 30 days
-
-// const TrackerModel = mongoose.model("TrackerModel", CallTrackerSchema);
-
-// const OC_instance = new TrackerModel({<properties go here>});
-// const A4A_instance = new TrackerModel({<properties go here>});
-// ^^ Each data call function to utilise these to change the record in the
-// functions each.
 
 async function handleError(err: any, res:any) {
     console.error(err);
@@ -185,7 +167,6 @@ async function checkDBAvailability(num: number){
             throw new Error("API Calls exhausted: A4ABGR. Try different options");
         }
     }
-
 }
 
 //Have to separate calls in their classes separately
@@ -251,17 +232,15 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
     .then((val) => {
         console.log(`[database]: A4A Calls available`);
         console.log(val);
-        //makeCall();
+        makeCall();
     })
     .catch( e => handleError(`[database]: ${e}`, res));
+
     function makeCall(){
+        let file = fs.readFileSync(filename);
+        
         let data = new FormData();
-        try {
-            let stream = fs.createReadStream(filename);
-            data.append("image", stream);
-        } catch (error) {
-            handleError(`Error in read stream: ${error}`, res);
-        }
+        data.append("image", file);
 
         let options = {
             method: 'POST',
@@ -279,7 +258,6 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
 
         axios.request(options)
         .then((response: any) => {
-            //do something
             //delete file permanently
             //increment tracker in DB
             docDBUpdate(2, res);
@@ -289,10 +267,10 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
             } catch (e){
                 handleError(e, res);
             }
-            console.log(response);
+            let convertedObj = { converted: `${prefix}${response.data.results[0].entities[0].image}` };
+            res.send(convertedObj);
         })
         .catch((error: any) => {
-            //pass error to errorhandler to frontend
             //delete file permanently
             docDBUpdate(2, res);
             try{
@@ -317,7 +295,6 @@ function finalizeCalls(body: AnyObj, res:any){
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
-        //a4aBGRCall('','','', res);
         let a4aObj = base64ToFile(body.image_data, res);
         
         if(a4aObj !== 'Invalid String'
@@ -348,14 +325,14 @@ function base64ToFile(str: string, res: any){
 
     resp.type = match[1];
     resp.data = Buffer.from(match[2], 'base64');
-    let tempFname = __dirname;
+    let tempFname = '';
     let preStr = match[0].slice(0, match[0].indexOf(',')+1);
     if(resp.type === 'image/jpeg'){
-        fs.writeFileSync(`./${rand_str}.jpg`, resp.data);
+        fs.writeFileSync(`${rand_str}.jpg`, resp.data);
         tempFname += `./${rand_str}.jpg`;
     }
     if(resp.type === 'image/png'){
-        fs.writeFileSync(`./${rand_str}.png`, resp.data);
+        fs.writeFileSync(`${rand_str}.png`, resp.data);
         tempFname += `./${rand_str}.png`;
     }
     let retObj = {
