@@ -3,32 +3,86 @@
   background-color: black;
 /*}*/
 
-body {
-    background-color: gray;
-}
-
 .img-preview-container {
     border-width: 5px;
     border-style:dashed;
-    border-radius: 25px; 
-    background-color: #BDBDBD;
+    border-radius: 25px;
+    border-color: #03A9F4;
+    background-color: #E1F5FE;
     padding:25px;
     text-align: center;
     margin:auto;
     max-width: 100%;
     max-height: 100%;
-    height: 600px;
+    min-height: 500px;
 }
 
 .img-options-container {
-    display: block;
+    display: flex;
+    justify-content: space-around;
+    padding:25px;
 }
 
 .preview-img {
     display: block;
     margin: auto;
     width: auto;
-    max-width:500px;
+    max-width:100%;
     height: auto;
     max-height: 500px;
+}
+
+.remove-bg-btn-container {
+    text-align: center;
+}
+
+.radio-btn {
+    margin: 8px;
+}
+
+#fg_options {
+    width: 200px;
+    max-width: 100%;
+    border-width: 3px;
+    border-radius: 5px;
+    border-color:#03A9F4;
+    background-color: white;
+    text-align: center;
+}
+
+#image-file-input {
+    display: block;
+}
+
+label[for="image-file-input"]{
+    background-color: #4FC3F7;
+    padding: 10px 20px;
+    border-radius: 1.5rem;
+    outline-style: solid;
+    outline-color: black;
+    outline-width: 0.15rem;
+}
+
+label[for="image-file-input"]:hover{
+    background-color: #29B6F6;
+}
+
+label[for="image-file-input"]:active {
+    background-color: #03A9F4;
+}
+
+#remove-bg-btn {
+    padding: 10px 20px;
+    border-radius: 1.5rem;
+    border-width:1px;
+    border-color: black;
+    background-color: #4FC3F7;
+}
+
+#remove-bg-btn:hover {
+    background-color: #29B6F6;
+}
+
+#remove-bg-btn:active {
+    background-color: #03A9F4;
 }

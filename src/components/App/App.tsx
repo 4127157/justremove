@@ -60,15 +60,17 @@ class App extends React.Component<Props, State>
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
+        let inputStyle = {
+            opacity: 0,
+        };
         return (
             <>
                 <div className='img-preview-container'>
                     {this.state.elemRet}
-                    <input type="file" id="image-file-input" accept='image/*' onChange={this.handleFiles} />
+                    <label htmlFor='image-file-input'>Choose images to upload (PNG, JPG)</label>
+                    <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={this.handleFiles} style={inputStyle} />
                 </div>
-                <div className='img-options-container'>
-                    {options}
-                </div>
+                {options}
             </>
         );
     }

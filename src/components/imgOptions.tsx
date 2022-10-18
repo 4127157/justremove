@@ -71,21 +71,23 @@ class ImgOptions extends React.Component<Props, State>
     render() {
         return (
                 <>
-                <div onChange={this.selectedOptions}>
+                <div className="img-options-container" onChange={this.selectedOptions}>
                     <div>
                         <label htmlFor="to_remove">Remove: </label>
-                        <input type='radio' value='foreground' name='to_remove' />Foreground
-                        <input type='radio' value='background' name='to_remove' defaultChecked />Background
+                        <input type='radio' value='foreground' name='to_remove' className="radio-btn" />Foreground
+                        <input type='radio' value='background' name='to_remove' className="radio-btn" defaultChecked />Background
                     </div>
                     <div>
                         <label htmlFor="bg_color">Replace With: </label>
-                        <input type='radio' value="white" name="bg_color" />White
-                        <input type='radio' value="transparent" name="bg_color" defaultChecked />Transparent
+                        <input type='radio' value="white" name="bg_color" className="radio-btn" />White
+                        <input type='radio' value="transparent" name="bg_color" className="radio-btn"  defaultChecked />Transparent
                     </div>
                     <div>
                         {this.fgDropdown()}
                     </div>
-                    <button onClick={this.submitValues}>Remove Background</button>
+                </div>
+                <div className="remove-bg-btn-container">
+                    <button id="remove-bg-btn" onClick={this.submitValues}>Remove Background</button>
                 </div>
                 </>
             );
