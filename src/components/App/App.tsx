@@ -16,8 +16,12 @@ interface State
     elemRet: JSX.Element,
     isPreviewReady: boolean,
     isImageConverted: boolean,
+    uploadedFilename?: string,
 }
 
+type AnyObj = {
+    [key: string]: string,
+}
 class App extends React.Component<Props, State> 
 {
     constructor(props: Props)
@@ -46,7 +50,11 @@ class App extends React.Component<Props, State>
         }));
     }
 
-    handleImgOptions = (obj: Object) => {
+    handleImgOptions = (obj: AnyObj) => {
+        if(this.state.uploadedFilename){
+            obj.filename = this.state.uploadedFilename;
+        }
+        console.log(obj);
         finaliseOptions.call(this, obj);
     }
         

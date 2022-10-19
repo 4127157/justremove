@@ -10,7 +10,9 @@ class DownloadBtn extends React.Component<Props>{
 
     render() {
         return(
-            <button className='action-btn' id='download-img-button'>Download Image</button>
+            <div className='action-btn-container'>
+                <button className='action-btn' id='download-img-btn'>Download Image</button>
+            </div>
         );
     }
 } 

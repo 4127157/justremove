@@ -8,6 +8,7 @@ function fileHandler(this:any, e: any){
     e.stopPropagation();
     e.preventDefault();
     let uploadedFile: File = e.target.files[0];
+    let uploadedFilename: string = e.target.value;
     if(uploadedFile){
         if(uploadedFile.size > this.MAX_IMAGE_SIZE){
             this.setState( 
@@ -39,6 +40,7 @@ function fileHandler(this:any, e: any){
                         {
                             imgData: retUrl,
                             elemRet: <ImgPreview base64={retUrl}/>,
+                            uploadedFilename: uploadedFilename,
                             isPreviewReady: true,
                         }
                     );

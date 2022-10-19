@@ -66,7 +66,8 @@ app.post('/image', (req: any,res: any) => {
             //finalizeCalls(req.body, res);
         });
 
-        setTimeout( () => res.send({converted: req.body.image_data}), 2000);
+        // setTimeout( () => res.send({converted: req.body.image_data}), 2000);
+        setTimeout( () => tempFileSend(req.body.image_data, res), 2000);
 
     } else {
         handleError("Invalid input", res).catch(e => {
@@ -79,6 +80,24 @@ app.post('/image', (req: any,res: any) => {
 app.listen(port, () => {
     console.log(`[server]: Server is running at https://localhost:${port}`);
 });
+
+function tempFileSend(str: string, res: any){
+    let obj  = base64ToFile(str, res);
+    if(typeof(obj) === 'object'){
+        try {
+        res.sendFile(obj.fName);
+        } catch(e: any) {
+            // if(typeof(obj) === 'object'){
+            //     fs.unlinkSync(obj.fName);
+            // } //redundancy due to redundant TS Error (property does not exist on type despite check)
+            handleError(e, res);
+        }
+        // fs.unlinkSync(obj.fName);
+    } else {
+        handleError(obj, res);
+    }
+    return;
+}
 
 async function handleError(err: any, res:any) {
     console.error(err);
@@ -325,15 +344,15 @@ function base64ToFile(str: string, res: any){
 
     resp.type = match[1];
     resp.data = Buffer.from(match[2], 'base64');
-    let tempFname = '';
+    let tempFname = __dirname;
     let preStr = match[0].slice(0, match[0].indexOf(',')+1);
     if(resp.type === 'image/jpeg'){
         fs.writeFileSync(`${rand_str}.jpg`, resp.data);
-        tempFname += `./${rand_str}.jpg`;
+        tempFname += `/${rand_str}.jpg`;
     }
     if(resp.type === 'image/png'){
         fs.writeFileSync(`${rand_str}.png`, resp.data);
-        tempFname += `./${rand_str}.png`;
+        tempFname += `/${rand_str}.png`;
     }
     let retObj = {
         pFix: preStr,

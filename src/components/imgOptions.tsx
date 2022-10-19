@@ -85,8 +85,8 @@ class ImgOptions extends React.Component<Props, State>
                         {this.fgDropdown()}
                     </div>
                 </div>
-                <div className="remove-bg-btn-container">
-                    <button id="remove-bg-btn" onClick={this.submitValues}>Remove Background</button>
+                <div className="action-btn-container">
+                    <button className='action-btn' id="remove-bg-btn" onClick={this.submitValues}>Remove Background</button>
                 </div>
                 </>
             );

@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 const serverConfig = {
-    // target: 'node',
+    target: 'node',
     entry: {
         server: {
             import: './server/App.ts',
