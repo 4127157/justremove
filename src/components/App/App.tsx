@@ -2,6 +2,7 @@ import * as React from 'react';
 import ImgPreview from '../imgPreview';
 import StatusComp from '../StatusComp';
 import ImgOptions from '../imgOptions';
+import DownloadBtn from '../downloadBtn';
 import { fileHandler } from '../FileHandlerComp';
 import { finaliseOptions } from '../finaliseOptions';
 
@@ -14,6 +15,7 @@ interface State
     imgData?: string | ArrayBuffer,
     elemRet: JSX.Element,
     isPreviewReady: boolean,
+    isImageConverted: boolean,
 }
 
 class App extends React.Component<Props, State> 
@@ -24,6 +26,7 @@ class App extends React.Component<Props, State>
         this.state =  {
             elemRet: <></>,
             isPreviewReady: false,
+            isImageConverted: false,
         } as State;
 
         this.handleFiles = this.handleFiles.bind(this);
@@ -60,6 +63,9 @@ class App extends React.Component<Props, State>
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
+        if(this.state.isImageConverted === true){
+            options = <DownloadBtn/>;
+        }
         let inputStyle = {
             opacity: 0,
         };
@@ -67,7 +73,7 @@ class App extends React.Component<Props, State>
             <>
                 <div className='img-preview-container'>
                     {this.state.elemRet}
-                    <label htmlFor='image-file-input'>Choose images to upload (PNG, JPG)</label>
+                    <label htmlFor='image-file-input'>Choose image to upload (PNG, JPG)</label>
                     <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={this.handleFiles} style={inputStyle} />
                 </div>
                 {options}

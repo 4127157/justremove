@@ -30,7 +30,9 @@ function finaliseOptions(this: any, obj: Object){
                 if(!result.error){
                     let str = result.converted;
                     this.setState(() => ({
-                        elemRet: <ImgPreview base64={str}/>
+                        elemRet: <ImgPreview base64={str}/>,
+                        isPreviewReady: false,
+                        isImageConverted: true,
                     }));
                 } else if(result.error){
                     console.log(result.error);
