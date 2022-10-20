@@ -24,8 +24,6 @@ const OBJECTCUT_LIMIT = 50;
 const A4A_LIMIT = 25;
 
 /*TODO:
-* Send file and locally delete without error (estimated that requires callback
-                                              * on sendfile)
 * Full refactor
 * classify every function
 * purify functions
@@ -83,18 +81,24 @@ app.listen(port, () => {
 function tempFileSend(str: string, res: any){
     let obj  = base64ToFile(str, res);
     if(typeof(obj) === 'object'){
-        try {
         res.sendFile(obj.fName);
-        } catch(e: any) {
-            // if(typeof(obj) === 'object'){
-            //     fs.unlinkSync(obj.fName);
-            // } //redundancy due to redundant TS Error (property does not exist on type despite check)
-            handleError(e, res);
-        }
-        // fs.unlinkSync(obj.fName);
     } else {
         handleError(obj, res);
     }
+    res.on('finish', () => {
+        try {
+            if(typeof(obj) === 'object'){
+                fs.unlinkSync(obj.fName);
+                console.info(`[FS]: Successfully removed: ${obj.fName}`);
+            }
+        } catch(e) {
+            if(typeof(obj) === 'object'){
+                console.error(`[FS]: Error removing file: ${obj.fName}`);
+            } else {
+                console.error("FS ", e);
+            }
+        }
+    });
     return;
 }
 
