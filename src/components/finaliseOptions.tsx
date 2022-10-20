@@ -24,22 +24,29 @@ function finaliseOptions(this: any, obj: Object){
             if(res.ok){
                 this.resetStateElem();
             }
-            return res.json();
+            return res.blob();
         })
     .then((result) => {
-                if(!result.error){
-                    let str = result.converted;
-                    this.setState(() => ({
-                        elemRet: <ImgPreview base64={str}/>,
-                        isPreviewReady: false,
-                        isImageConverted: true,
-                    }));
-                } else if(result.error){
-                    console.log(result.error);
-                    this.setState({
-                        elemRet: <StatusComp error={result.error}/>,
-                    });
-                }
+        let tempURL = URL.createObjectURL(result);
+        console.log(tempURL);
+        this.setState(() => ({
+            elemRet: <ImgPreview setUrl={tempURL}/>,
+            isPreviewReady: false,
+            isImageConverted: true,
+        }));
+                // if(!result.error){
+                //     let str = result.converted;
+                //     this.setState(() => ({
+                //         elemRet: <ImgPreview base64={str}/>,
+                //         isPreviewReady: false,
+                //         isImageConverted: true,
+                //     }));
+                // } else if(result.error){
+                //     console.log(result.error);
+                //     this.setState({
+                //         elemRet: <StatusComp error={result.error}/>,
+                //     });
+                // }
         })
     .catch((error) => {
                 console.error(error);

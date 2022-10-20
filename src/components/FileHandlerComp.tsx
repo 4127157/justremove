@@ -39,7 +39,7 @@ function fileHandler(this:any, e: any){
                     this.setState(
                         {
                             imgData: retUrl,
-                            elemRet: <ImgPreview base64={retUrl}/>,
+                            elemRet: <ImgPreview setUrl={retUrl}/>,
                             uploadedFilename: uploadedFilename,
                             isPreviewReady: true,
                         }

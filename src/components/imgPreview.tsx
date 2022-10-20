@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 interface Props {
-    base64: string | ArrayBuffer
+    setUrl: string | ArrayBuffer
 }
 
 interface State {
@@ -17,7 +17,7 @@ class ImgPreview extends React.Component<Props, State>{
     render(): JSX.Element{
         return (
             <>
-                <img className='preview-img'src={this.props.base64.toString()}/>
+                <img className='preview-img'src={this.props.setUrl.toString()}/>
                 <p>Your image is above</p>
             </>
         );
