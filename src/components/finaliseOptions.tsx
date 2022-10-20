@@ -28,11 +28,11 @@ function finaliseOptions(this: any, obj: Object){
         })
     .then((result) => {
         let tempURL = URL.createObjectURL(result);
-        console.log(tempURL);
         this.setState(() => ({
             elemRet: <ImgPreview setUrl={tempURL}/>,
             isPreviewReady: false,
             isImageConverted: true,
+            imgBlobUrl: tempURL,
         }));
                 // if(!result.error){
                 //     let str = result.converted;

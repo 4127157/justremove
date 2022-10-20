@@ -17,6 +17,7 @@ interface State
     isPreviewReady: boolean,
     isImageConverted: boolean,
     uploadedFilename?: string,
+    imgBlobUrl?: string,
 }
 
 type AnyObj = {
@@ -71,8 +72,8 @@ class App extends React.Component<Props, State>
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
-        if(this.state.isImageConverted === true){
-            options = <DownloadBtn/>;
+        if(this.state.isImageConverted === true && this.state.imgBlobUrl){
+            options = <DownloadBtn targetUrl={this.state.imgBlobUrl}/>;
         }
         let inputStyle = {
             opacity: 0,
