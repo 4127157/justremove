@@ -23,10 +23,9 @@ const port = process.env.PORT;
 const OBJECTCUT_LIMIT = 50;
 const A4A_LIMIT = 25;
 
-// type InputBody = {
-//     [key: string]: any,
-// }
-/*TODO: 
+/*TODO:
+* Send file and locally delete without error (estimated that requires callback
+                                              * on sendfile)
 * Full refactor
 * classify every function
 * purify functions
