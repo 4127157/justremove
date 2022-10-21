@@ -51,6 +51,15 @@ class App extends React.Component<Props, State>
         }));
     }
 
+    resetStateInitial = (e: any) => {
+        e.preventDefault();
+        this.resetStateElem();
+        this.setState(() => ({
+            isImageConverted: false,
+            isPreviewReady: false,
+        }));
+    }
+
     handleImgOptions = (obj: AnyObj) => {
         if(this.state.uploadedFilename){
             obj.filename = this.state.uploadedFilename;
@@ -68,22 +77,26 @@ class App extends React.Component<Props, State>
     
     render (): JSX.Element 
     {
+        let inputStyle = {
+            opacity: 0,
+        };
         let options;
+        let actionButton =  <>
+                                <label htmlFor='image-file-input'>Choose image to upload (PNG, JPG)</label>
+                                <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={this.handleFiles} style={inputStyle} />
+                            </>;
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
         if(this.state.isImageConverted === true && this.state.imgBlobUrl){
             options = <DownloadBtn targetUrl={this.state.imgBlobUrl}/>;
+            actionButton = <button className='action-btn' onClick={this.resetStateInitial}>Convert another?</button>
         }
-        let inputStyle = {
-            opacity: 0,
-        };
         return (
             <>
                 <div className='img-preview-container'>
                     {this.state.elemRet}
-                    <label htmlFor='image-file-input'>Choose image to upload (PNG, JPG)</label>
-                    <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={this.handleFiles} style={inputStyle} />
+                    {actionButton}
                 </div>
                 {options}
             </>
