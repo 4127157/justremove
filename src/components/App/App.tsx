@@ -5,6 +5,7 @@ import ImgOptions from '../imgOptions';
 import DownloadBtn from '../downloadBtn';
 import { fileHandler } from '../FileHandlerComp';
 import { finaliseOptions } from '../finaliseOptions';
+import ActionItem from '../ActionItemComp';
 
 interface Props 
 {
@@ -68,8 +69,6 @@ class App extends React.Component<Props, State>
         finaliseOptions.call(this, obj);
     }
         
-    
-
     handleFiles = (e: any) => 
     {
         fileHandler.call(this, e);
@@ -77,21 +76,20 @@ class App extends React.Component<Props, State>
     
     render (): JSX.Element 
     {
-        let inputStyle = {
-            opacity: 0,
-        };
+
         let options;
-        let actionButton =  <>
-                                <label htmlFor='image-file-input'>Choose image to upload (PNG, JPG)</label>
-                                <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={this.handleFiles} style={inputStyle} />
-                            </>;
+
+        let actionButton = <ActionItem handleFiles={this.handleFiles} />
+
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
         }
+
         if(this.state.isImageConverted === true && this.state.imgBlobUrl){
             options = <DownloadBtn targetUrl={this.state.imgBlobUrl}/>;
             actionButton = <button className='action-btn' onClick={this.resetStateInitial}>Convert another?</button>
         }
+
         return (
             <>
                 <div className='img-preview-container'>
