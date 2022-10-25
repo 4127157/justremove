@@ -43,13 +43,15 @@ class ActionItem extends React.Component<Props, State> {
                     <span className='block-span'>OR</span>
                     <div>
                         <div>
-                            <label htmlFor='url_field'>Enter URL: </label>
-                            <input type='text' id='url_input' name="url_field" size={20} value={this.state.url_value} onChange={this.handleUrlUpdate}/>
+                            <label htmlFor='url_field'>Enter link: </label>
+                            <input type='text' id='url_input' name="url_field" size={30} value={this.state.url_value} onChange={this.handleUrlUpdate} placeholder="Enter image link..."/>
                         </div>
                         <button id='load-img-btn' className='action-btn'>Load Image</button>
                     </div>
                     <span className='block-span'>OR</span>
-                    <span className='block-span'>Drag & Drop</span>
+                    <div id='drag_and_drop_block'>
+                        <span className='block-span'>Drag & Drop</span>
+                    </div>
                 </div>
                </>); 
     }

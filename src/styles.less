@@ -55,12 +55,10 @@
 }
 
 label[for="image-file-input"]{
+    display: inline-block;
     background-color: #81D4FA;
     padding: 10px 20px;
     border-radius: 1.5rem;
-    outline-style: solid;
-    outline-color: black;
-    outline-width: 0.15rem;
 }
 
 label[for="image-file-input"]:hover{
@@ -74,8 +72,7 @@ label[for="image-file-input"]:active {
 .action-btn {
     padding: 10px 20px;
     border-radius: 1.5rem;
-    border-width:1px;
-    border-color: black;
+    border: none;
     background-color: #81D4FA;
 }
 
@@ -95,4 +92,37 @@ label[for="image-file-input"]:active {
     display: block;
     text-align: center;
     line-height: 2.5em;
+}
+
+.img-preview-options {
+    display: flex;
+    flex-direction: column;
+}
+
+#url_input {
+    padding: 5px 5px;
+    border-radius: 8px;
+    border-color: #03A9F4;
+    border-style: solid;
+}
+
+#load-img-btn {
+    margin: 1.2em;
+}
+
+label[for="url_field"]{
+    opacity: 0;
+    display: block;
+    height:1px; //bit hacky but accessible, I think? (verify with aria/4lly)
+}
+
+#drag_and_drop_block{
+    text-align: center;
+    margin:auto;
+    background-color: gray;
+    border-radius: 10px;
+    width: 54em;
+    height: 18em;
+    max-width: 100%;
+    max-height:50%;
 }
