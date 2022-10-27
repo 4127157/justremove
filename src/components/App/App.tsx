@@ -5,6 +5,7 @@ import ImgOptions from '../imgOptions';
 import DownloadBtn from '../downloadBtn';
 import { fileHandler } from '../FileHandlerComp';
 import { finaliseOptions } from '../finaliseOptions';
+import { urlImgLoader } from '../urlImgLoader';
 import ActionItem from '../ActionItemComp';
 
 interface Props 
@@ -73,13 +74,17 @@ class App extends React.Component<Props, State>
     {
         fileHandler.call(this, e);
     }
+
+    loadFromUrl = () => {
+        urlImgLoader();
+    }
     
     render (): JSX.Element 
     {
 
         let options;
 
-        let actionButton = <ActionItem handleFiles={this.handleFiles} />
+        let actionButton = <ActionItem handleFiles={this.handleFiles} urlImgLoad ={this.loadFromUrl} />
 
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
