@@ -75,7 +75,7 @@ class App extends React.Component<Props, State>
         fileHandler.call(this, e);
     }
 
-    loadFromUrl = () => {
+    loadFromUrl = (e: any) => {
         urlImgLoader();
     }
     

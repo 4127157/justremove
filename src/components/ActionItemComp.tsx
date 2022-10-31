@@ -32,7 +32,7 @@ class ActionItem extends React.Component<Props, State> {
     }
 
     urlImgLoader = (e: any) => {
-        this.props.urlImgLoad();
+        this.props.urlImgLoad(this.state.url_value);
     }
 
     render(){
