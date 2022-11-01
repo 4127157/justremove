@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { urlImgLoader } from './urlImgLoader';
 
 interface Props {
     handleFiles: Function,
@@ -24,7 +25,12 @@ class ActionItem extends React.Component<Props, State> {
         this.setState(
         {
             url_value: e.target.value,
+        }, () => {
+            //callback stuff
+            //console.log(this.state.url_value);
         });
+        //have to callback cause async state
+
     }
 
     handleFiles = (e: any) => {
