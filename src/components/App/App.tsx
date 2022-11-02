@@ -37,6 +37,7 @@ class App extends React.Component<Props, State>
         } as State;
 
         this.handleFiles = this.handleFiles.bind(this);
+        this.loadImgFmUrl = this.loadImgFmUrl.bind(this);
     }
 
     serverURL: string = "http://localhost:7979";
@@ -75,16 +76,23 @@ class App extends React.Component<Props, State>
         fileHandler.call(this, e);
     }
 
-    loadFromUrl = (e: any) => {
-        urlImgLoader();
+    loadImgFmUrl = (urlVal: string) => {
+        console.log(urlVal);
+        console.log("Value of URL to loadImgFmUrl in Apptsx");
+        this.setState({
+            imgBlobUrl: urlVal,
+            elemRet: <ImgPreview setUrl={urlVal}/>,
+            isPreviewReady: true,
+        });
     }
+
     
     render (): JSX.Element 
     {
 
         let options;
 
-        let actionButton = <ActionItem handleFiles={this.handleFiles} urlImgLoad ={this.loadFromUrl} />
+        let actionButton = <ActionItem handleFiles={this.handleFiles} parentPreview={this.loadImgFmUrl}/>
 
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;

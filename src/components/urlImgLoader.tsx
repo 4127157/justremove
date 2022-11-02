@@ -4,17 +4,17 @@
  * GET image from URL as blob
  * return image and set to state then send to preview comps
  * Update state*/
-function urlImgLoader(val?: any){
+async function urlImgLoader(val: any){
     let imgUrl = val;
+    let imgBlobUrl = '';
     
-    if(val){
-        fetch(imgUrl)
+        return fetch(imgUrl)
         .then( res => res.blob())
         .then( myBlob => {
-            let imgBlobUrl = URL.createObjectURL(myBlob);
+            imgBlobUrl = URL.createObjectURL(myBlob);
             console.log(imgBlobUrl);
+            return imgBlobUrl;
         });
-    }
 }
 
 export { urlImgLoader };
