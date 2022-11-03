@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { urlImgLoader } from './urlImgLoader';
+import Dropzone from 'react-dropzone';
 
 interface Props {
     handleFiles: Function,
@@ -66,9 +67,14 @@ class ActionItem extends React.Component<Props, State> {
                         <button id='load-img-btn' className='action-btn' onClick={this.loadUrlImage}>Load Image</button>
                     </div>
                     <span className='block-span'>OR</span>
-                    <div id='drag_and_drop_block'>
-                        <span className='block-span'>Drag & Drop</span>
-                    </div>
+                    <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
+                        {({getRootProps, getInputProps}) => (
+                            <div {...getRootProps()} id='drag_and_drop_block'>
+                                <input {...getInputProps()}/>
+                                <span className='block-span'>Drag & Drop</span>
+                            </div>
+                        )}
+                    </Dropzone>
                 </div>
                </>); 
     }
