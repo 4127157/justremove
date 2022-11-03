@@ -22,6 +22,8 @@ class ActionItem extends React.Component<Props, State> {
         this.loadUrlImage = this.loadUrlImage.bind(this);
     }
 
+    MAX_IMAGE_SIZE: number = 9_437_184;
+
     handleUrlUpdate = (e: any) => {
         this.setState(
         {
@@ -67,10 +69,23 @@ class ActionItem extends React.Component<Props, State> {
                         <button id='load-img-btn' className='action-btn' onClick={this.loadUrlImage}>Load Image</button>
                     </div>
                     <span className='block-span'>OR</span>
-                    <Dropzone onDrop={acceptedFiles => console.log(acceptedFiles)}>
+                    <Dropzone 
+                        noClick={true}
+                        accept={{
+                            'image/jpeg':[],
+                            'image/png':[],}}
+                        maxFiles={1}
+                        maxSize={this.MAX_IMAGE_SIZE}
+                        onDropAccepted={acceptedFiles => console.log(acceptedFiles)}
+                        onDropRejected={() => console.log("files were rejected")}>
                         {({getRootProps, getInputProps}) => (
-                            <div {...getRootProps()} id='drag_and_drop_block'>
-                                <input {...getInputProps()}/>
+                            <div {...getRootProps({
+                                    'aria-label': 'drag and drop area',
+                                    'id':'drag_and_drop_block',
+                                })} >
+                                <input {...getInputProps({
+                                    'multiple': false,
+                                    })}/>
                                 <span className='block-span'>Drag & Drop</span>
                             </div>
                         )}
