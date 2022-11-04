@@ -77,10 +77,8 @@ class App extends React.Component<Props, State>
     }
 
     loadImgFmUrl = (urlVal: string) => {
-        console.log(urlVal);
-        console.log("Value of URL to loadImgFmUrl in Apptsx");
         this.setState({
-            imgBlobUrl: urlVal,
+            imgData: urlVal,
             elemRet: <ImgPreview setUrl={urlVal}/>,
             isPreviewReady: true,
         });
@@ -96,6 +94,7 @@ class App extends React.Component<Props, State>
 
         if(this.state.isPreviewReady === true){
             options = <ImgOptions parentCallback = {this.handleImgOptions}/>;
+            actionButton = <button className='action-btn' onClick={this.resetStateInitial}>Change Image?</button>;
         }
 
         if(this.state.isImageConverted === true && this.state.imgBlobUrl){

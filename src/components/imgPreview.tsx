@@ -15,8 +15,6 @@ class ImgPreview extends React.Component<Props, State>{
         }
     }
     render(): JSX.Element{
-        console.log(this.props.setUrl);
-        console.log("props being sent is above to imgpreview");
         return (
             <>
                 <img className='preview-img'src={this.props.setUrl.toString()}/>

@@ -387,24 +387,29 @@ function bodyValidator(body: AnyObj){
     if(typeof(body) === 'object'){
         checker++;
     }
+    console.log(`Val of checker at typeof: ${checker}`);
 
     if(body.options) {
         checker++;
     }
+    console.log(`Val of checker at typeof: ${checker}`);
 
     if(body.image_data && typeof(body.image_data) === 'string'){
         checker++;
     }
+    console.log(`Val of checker at body.image_data check: ${checker}`);
 
     if(body.options.to_remove === 'foreground' 
         || body.options.to_remove === 'background'){
         checker++;
     }
+    console.log(`Val of checker at options.to_remove: ${checker}`);
 
     if(body.options.bg_color === 'white' 
         || body.options.bg_color === 'transparent'){
         checker++;
     }
+    console.log(`Val of checker at options.bg_color: ${checker}`);
 
     if(body.options.fg_options === ''
         || body.options.fg_options === 'fg-image'
@@ -415,5 +420,7 @@ function bodyValidator(body: AnyObj){
         
         checker++;
     }
+    console.log("This is checker value: ");
+    console.log(checker);
     return checker == 6 ? true : false;
 }

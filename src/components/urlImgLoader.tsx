@@ -6,14 +6,25 @@
  * Validate URL*/
 async function urlImgLoader(val: any){
     let imgUrl = val;
-    let imgBlobUrl = '';
-    
+
         return fetch(imgUrl)
         .then( res => res.blob())
         .then( myBlob => {
-            imgBlobUrl = URL.createObjectURL(myBlob);
-            console.log(imgBlobUrl);
-            return imgBlobUrl;
+            // imgBlobUrl = URL.createObjectURL(myBlob);
+            // console.log(imgBlobUrl);
+            // return imgBlobUrl;
+            // let base64Str = btoa(String.fromCharCode(...file));
+            return new Promise((resolve, reject) => {
+                let FR = new FileReader();
+                FR.onloadstart = () => {
+                    console.log("Loading file begins...");
+                }
+                FR.onloadend = () => {
+                    resolve(FR.result);
+                }
+                FR.onerror = reject;
+                FR.readAsDataURL(myBlob);
+            });
         });
 }
 

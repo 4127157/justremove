@@ -46,9 +46,7 @@ class ActionItem extends React.Component<Props, State> {
     }
 
     loadUrlImage =async () => {
-        console.log("loadUrlImage called");
         let tmpBlob = await urlImgLoader(this.state.url_value);
-        console.log("Vale received from loadUrlImage is: " + tmpBlob);
         this.props.parentPreview(tmpBlob)
     }
 
