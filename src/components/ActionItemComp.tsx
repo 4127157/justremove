@@ -36,8 +36,13 @@ class ActionItem extends React.Component<Props, State> {
 
     }
 
-    handleFiles = (e: any) => {
-        this.props.handleFiles(e);
+    handleFiles = (dragged: boolean, file?: any) => {
+        if(dragged === false){
+            this.props.handleFiles(dragged, file);
+        }
+        if(dragged === true){
+            this.props.handleFiles(dragged, file[0]);
+        }
     }
 
     loadUrlImage =async () => {
@@ -45,6 +50,10 @@ class ActionItem extends React.Component<Props, State> {
         let tmpBlob = await urlImgLoader(this.state.url_value);
         console.log("Vale received from loadUrlImage is: " + tmpBlob);
         this.props.parentPreview(tmpBlob)
+    }
+
+    processDragged = (file: any) => {
+        console.log(file[0]);
     }
 
 
@@ -58,7 +67,7 @@ class ActionItem extends React.Component<Props, State> {
                 <div className='img-preview-options'>
                     <div>
                         <label htmlFor='image-file-input'>Choose image to upload (PNG, JPG)</label>
-                        <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={this.handleFiles} style={inputStyle}/>
+                        <input type="file" name='image-file-input' id="image-file-input" accept='image/*' onChange={(e) => this.handleFiles(false, e)} style={inputStyle}/>
                     </div>
                     <span className='block-span'>OR</span>
                     <div>
@@ -76,7 +85,7 @@ class ActionItem extends React.Component<Props, State> {
                             'image/png':[],}}
                         maxFiles={1}
                         maxSize={this.MAX_IMAGE_SIZE}
-                        onDropAccepted={acceptedFiles => console.log(acceptedFiles)}
+                        onDropAccepted={acceptedFiles => this.handleFiles(true, acceptedFiles)}
                         onDropRejected={() => console.log("files were rejected")}>
                         {({getRootProps, getInputProps}) => (
                             <div {...getRootProps({

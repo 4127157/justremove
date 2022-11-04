@@ -71,9 +71,9 @@ class App extends React.Component<Props, State>
         finaliseOptions.call(this, obj);
     }
         
-    handleFiles = (e: any) => 
+    handleFiles = (dragged: boolean, file: any) => 
     {
-        fileHandler.call(this, e);
+        fileHandler.call(this,dragged, file);
     }
 
     loadImgFmUrl = (urlVal: string) => {

@@ -2,13 +2,23 @@ import * as React from 'react';
 import StatusComp from './StatusComp'
 import ImgPreview from './imgPreview';
 
-function fileHandler(this:any, e: any){
+function fileHandler(this:any, dragged: boolean, file?:any ){
     let retUrl;
     let sizeStr = `Sorry, files larger than ${this.MAX_SIZE_STR} are not supported. Consider resizing.`;
-    e.stopPropagation();
-    e.preventDefault();
-    let uploadedFile: File = e.target.files[0];
-    let uploadedFilename: string = e.target.value;
+    let uploadedFile: File | undefined = undefined; 
+    let uploadedFilename: string | undefined = undefined;
+    if(dragged === false){
+        file.stopPropagation();
+        file.preventDefault();
+        uploadedFile = file.target.files[0];
+        uploadedFilename = file.target.value;
+    } 
+
+    if(dragged === true){
+        uploadedFile = file;
+        uploadedFilename = file.name;
+    }
+
     if(uploadedFile){
         if(uploadedFile.size > this.MAX_IMAGE_SIZE){
             this.setState( 
