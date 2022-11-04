@@ -40,7 +40,8 @@ class App extends React.Component<Props, State>
         this.loadImgFmUrl = this.loadImgFmUrl.bind(this);
     }
 
-    serverURL: string = "http://localhost:7979";
+    // serverURL: string = "http://localhost:7979";
+    serverURL: string = "http://justremove-api.onrender.com";
     MAX_IMAGE_SIZE: number = 9_437_184;
     MAX_SIZE_STR: string = '9 MiB';
 
@@ -83,7 +84,6 @@ class App extends React.Component<Props, State>
             isPreviewReady: true,
         });
     }
-
     
     render (): JSX.Element 
     {
