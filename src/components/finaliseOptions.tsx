@@ -9,6 +9,7 @@ function finaliseOptions(this: any, obj: Object){
         image_data: this.state.imgData,
     };
     let bodyData = JSON.stringify(dataJson);
+    console.log(bodyData);
     
     this.setState({
         elemRet: <StatusComp loader='processing'/>,
