@@ -41,7 +41,7 @@ app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at
 app.use(express.json({limit: '10mb'}));
 
 var corsOptions = {
-    origin: 'https://justremove.onrender.com',
+    origin: process.env.ACCEPT_ORIGIN,
     methods: 'GET,POST',
     optionsSuccessStatus: 200,
 };
@@ -330,6 +330,8 @@ function finalizeCalls(body: AnyObj, res:any){
         console.log("make objectcut call");
     }
     if(api === 'a4aBGR'){
+        //05/11/22 - Send as buffer here in the params and make the call func
+        //accept the buffer as one param and replace in formdata
         let a4aObj = base64ToFile(body.image_data, res);
         
         if(a4aObj !== 'Invalid String'
