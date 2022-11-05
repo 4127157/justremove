@@ -41,7 +41,7 @@ app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at
 app.use(express.json({limit: '10mb'}));
 
 var corsOptions = {
-    origin: 'https://jusremove.onrender.com',
+    origin: 'https://justremove.onrender.com',
     methods: 'GET,POST',
     optionsSuccessStatus: 200,
 };
