@@ -16,7 +16,10 @@ function finaliseOptions(this: any, obj: Object){
 
     fetch(`${this.serverURL}/image`, {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+            'Content-Type': 'application/json',
+            'Referer': 'origin'
+            },
         body: bodyData,
         // cache: 'no-cache',
     })
