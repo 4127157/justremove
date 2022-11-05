@@ -86,7 +86,7 @@ app.listen(port, () => {
 });
 
 function tempFileSend(str: string, res: any){
-    let obj  = base64ToFile(str, res);
+    /*let obj  = base64ToFile(str, res);
     if(typeof(obj) === 'object'){
         res.sendFile(obj.fName);
     } else {
@@ -106,7 +106,13 @@ function tempFileSend(str: string, res: any){
             }
         }
     });
-    return;
+    return;*/
+
+    let match = str.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if(match){
+        res.type(match[1]);
+        res.send(Buffer.from(match[2], "base64"));
+    }
 }
 
 async function handleError(err: any, res:any) {
