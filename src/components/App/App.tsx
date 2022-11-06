@@ -42,7 +42,7 @@ class App extends React.Component<Props, State>
 
  
     // serverURL: string = "http://localhost:7979";
-    serverURL: string | undefined = process.env.SERVER_URL;
+    serverURL: string | undefined = process.env.API_URL;
     //"https://justremove-api.onrender.com";
     MAX_IMAGE_SIZE: number = 9_437_184;
     MAX_SIZE_STR: string = '9 MiB';

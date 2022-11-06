@@ -1,9 +1,16 @@
 const webpack = require('webpack');
+//const dotenv = require('dotenv');
 const nodeExternals = require('webpack-node-externals');
 const path = require('path');
 const json5 = require('json5');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
+// dotenv.config({
+//     path: path.join(__dirname, '.env')
+// });
+
+
 
 const serverConfig = {
     target: 'node',
@@ -32,7 +39,8 @@ const serverConfig = {
     externals: [nodeExternals()],
 };
 
-const clientConfig = {
+const clientConfig = (env) => {
+    return {
   target: "web",
   entry: {
       index: { 
@@ -120,8 +128,13 @@ const clientConfig = {
     new MiniCssExtractPlugin({
         filename: './css/[name].css'
     }),
+    new webpack.DefinePlugin({
+        'process.env.API_URL': JSON.stringify(env.API_URL)
+    }),
   ],
-};
+}};
 
-module.exports = [serverConfig,clientConfig];
+module.exports = (env) => {
+    return [serverConfig,clientConfig(env)]
+};
 

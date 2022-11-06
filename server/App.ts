@@ -23,6 +23,8 @@ const port = process.env.PORT;
 const OBJECTCUT_LIMIT = 50;
 const A4A_LIMIT = 25;
 
+console.log(__dirname);
+
 /*TODO:
 * Full refactor
 * classify every function
