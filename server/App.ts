@@ -36,23 +36,26 @@ type AnyObj = {
 };
 
 
-app.use(helmet());
-app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at docs!
-app.use(express.json({limit: '10mb'}));
-
+// var acceptedOrigins = ;
 var corsOptions = {
-    //origin: process.env.ACCEPT_ORIGIN,
-    methods: 'GET,POST',
+    origin: [`${process.env.ACCEPT_ORIGIN}`, `${process.env.OBJECTCUT_URL}`, `${process.env.A4ABGR_URL}`],
+    methods: 'POST',
     optionsSuccessStatus: 200,
 };
+
+app.use(helmet());
+app.use(cors(corsOptions));//Have to reconfigure when production, unsafe otherwise, look at docs!
+app.use(express.json({limit: '10mb'}));
+
+
 var callOpen: Boolean | undefined = undefined; 
 
-app.get('/', (req: any, res: any) => {
-    res.status(400).send('Bad Request: Endpoint Inaccessible');
-});
+// app.get('/', (req: any, res: any) => {
+//     res.status(400).send('Bad Request: Endpoint Inaccessible');
+// });
 
-app.options('*', cors(corsOptions));
-app.post('/image',cors(corsOptions), (req: any,res: any) => {
+// app.options('*', cors(corsOptions));
+app.post('/image',/*cors(corsOptions),*/ (req: any,res: any) => {
     let gateBool = bodyValidator(req.body);
     if(gateBool === true){
         connectDB()
