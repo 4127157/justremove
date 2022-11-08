@@ -27,10 +27,25 @@ function finaliseOptions(this: any, obj: Object){
             if(res.ok){
                 this.resetStateElem();
             }
-            return res.blob();
+            return res.json();
         })
     .then((result) => {
-        let tempURL = URL.createObjectURL(result);
+        let str = result.converted;
+        let match = str.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+
+        function b64toBlob(dataStr: string, typeStr: string){
+            let byteStr = window.atob(dataStr);
+            let arrBfr = new ArrayBuffer(byteStr.length);
+            let iArr = new Uint8Array(arrBfr);
+
+            for (let i=0; i<byteStr.length; i++){
+                iArr[i] = byteStr.charCodeAt(i);
+            }
+
+            return new Blob([arrBfr], { type: typeStr });
+        }
+
+        let tempURL = URL.createObjectURL(b64toBlob(match[2], match[1]));
         this.setState(() => ({
             elemRet: <ImgPreview setUrl={tempURL}/>,
             isPreviewReady: false,

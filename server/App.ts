@@ -2,7 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
 import helmet from 'helmet';
-const axios = require('axios').default;
+const axios = require('axios').default || require('axios');
 import cors from 'cors';
 const app = express();
 import fs from 'fs';
@@ -23,8 +23,6 @@ const port = process.env.PORT;
 const OBJECTCUT_LIMIT = 50;
 const A4A_LIMIT = 25;
 
-console.log(__dirname);
-
 /*TODO:
 * Full refactor
 * classify every function
@@ -43,13 +41,14 @@ app.use(cors());//Have to reconfigure when production, unsafe otherwise, look at
 app.use(express.json({limit: '10mb'}));
 
 var corsOptions = {
-    origin: process.env.ACCEPT_ORIGIN,
+    //origin: process.env.ACCEPT_ORIGIN,
     methods: 'GET,POST',
     optionsSuccessStatus: 200,
 };
+var callOpen: Boolean | undefined = undefined; 
 
 app.get('/', (req: any, res: any) => {
-    res.status(400).send('Bad Request');
+    res.status(400).send('Bad Request: Endpoint Inaccessible');
 });
 
 app.options('*', cors(corsOptions));
@@ -69,11 +68,18 @@ app.post('/image',cors(corsOptions), (req: any,res: any) => {
         });
         db.once("open", () => {
             console.log("[database]: connection to database successful");
-            //finalizeCalls(req.body, res);
+            if(callOpen === undefined){
+                callOpen = true;
+                finalizeCalls(req.body, res);
+            }
         });
 
+        if(callOpen === true){
+            finalizeCalls(req.body, res);
+        }
+
         // setTimeout( () => res.send({converted: req.body.image_data}), 2000);
-        setTimeout( () => tempFileSend(req.body.image_data, res), 2000);
+        //setTimeout( () => tempFileSend(req.body.image_data, res), 2000);
 
     } else {
         handleError("Invalid input", res).catch(e => {
@@ -190,6 +196,7 @@ async function checkDBAvailability(num: number){
     if(num === 1) {
         let filter = { name: "OC_Call" };
         let doc = await OCCallModel.findOne(filter);
+
         if(doc.calls_month <= OBJECTCUT_LIMIT){
             return true;
         } else {
@@ -198,6 +205,7 @@ async function checkDBAvailability(num: number){
     } else {
         let filter = { name: "A4A_Call" };
         let doc = await A4ACallModel.findOne(filter);
+
         if(doc.calls_month <= A4A_LIMIT){
             return true;
         } else {
@@ -219,7 +227,8 @@ function objectCutCall(body: AnyObj, res: any){
     .catch(e => handleError(`[database]: ${e}`, res));
 
     function makeCall() {
-
+        console.log("Reaching the makeCall function in ObjectCut");
+        console.log(process.env.RAPIDAPI_KEY);
         let match = body.image_data.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
         let encodedParams = new URLSearchParams();
         encodedParams.append("image_base64", match[2]);
@@ -235,8 +244,9 @@ function objectCutCall(body: AnyObj, res: any){
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
                 'X-RapidAPI-Host': process.env.OBJECTCUT_HOST,
             },
-            data: encodedParams,
+            data: encodedParams
         };
+
         function getPrefix(str: string){
             let temp = str.slice(0, (str.indexOf(',')+1));
             return temp;
@@ -244,12 +254,12 @@ function objectCutCall(body: AnyObj, res: any){
         
         axios.request(options)
         .then((response: any) => {
-            console.log(response);
+            //console.log(response);
             if(response.data.response.image_base64){
                 docDBUpdate(1, res);
                 let convertedObj = { "converted": (`${getPrefix(body.image_data)}` + `${response.data.response.image_base64}`), };
                 res.send(convertedObj);
-                console.log(convertedObj);
+                //console.log(convertedObj);
             } else {
                 handleError("Error from ObjectCut API in response data", res);
                 return;
@@ -264,7 +274,7 @@ function objectCutCall(body: AnyObj, res: any){
     }
 }
 
-function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
+function a4aBGRCall(imageData: string,  fgMode: string, res:any){
     checkDBAvailability(2)
     .then((val) => {
         console.log(`[database]: A4A Calls available`);
@@ -273,15 +283,28 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
     })
     .catch( e => handleError(`[database]: ${e}`, res));
 
+    let fileBuffer: Buffer | undefined = undefined;
+
     function makeCall(){
-        let file = fs.readFileSync(filename);
-        
+
+        function getPrefix(str: string){
+            let temp = str.slice(0, (str.indexOf(',')+1));
+            return temp;
+        }
+        console.log("Reaching the makeCall function in a4aBGR");
+        let match = imageData.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if(match){
+            fileBuffer = Buffer.from(match[2], "base64"); 
+        } else {
+            handleError('[API]: Supplied bad input', res);
+        }
+
         let data = new FormData();
-        data.append("image", file);
+        data.append("image", fileBuffer);
 
         let options = {
             method: 'POST',
-            url: process.env.A4ABGR_URL,
+            url: `${process.env.A4ABGR_URL}`,
             params: {
                 mode: fgMode,
             },
@@ -292,31 +315,19 @@ function a4aBGRCall(prefix:string, filename:string, fgMode: string, res:any){
             },
             data: data,
         };
-
+        
+        console.log("reaching prior to axios request statement");
         axios.request(options)
         .then((response: any) => {
-            //delete file permanently
             //increment tracker in DB
             docDBUpdate(2, res);
-            try{
-                fs.unlinkSync(filename);
-                console.info(`[FS] File removed: ${filename}`);
-            } catch (e){
-                handleError(e, res);
-            }
-            let convertedObj = { converted: `${prefix}${response.data.results[0].entities[0].image}` };
+            let convertedObj = { converted: `${getPrefix(imageData)}` + `${response.data.results[0].entities[0].image}` };
             res.send(convertedObj);
         })
         .catch((error: any) => {
             //delete file permanently
             docDBUpdate(2, res);
-            try{
-                fs.unlinkSync(filename);
-                console.info(`[FS] File removed: ${filename}`);
-            } catch (e){
-                handleError(`[FS]: ${e}`, res);
-            }
-             handleError("Error occured in a4aBGR API call \n" + error, res);
+            handleError("Error occured in a4aBGR API call \n" + error, res);
         });
     }
 
@@ -334,19 +345,8 @@ function finalizeCalls(body: AnyObj, res:any){
     if(api === 'a4aBGR'){
         //05/11/22 - Send as buffer here in the params and make the call func
         //accept the buffer as one param and replace in formdata
-        let a4aObj = base64ToFile(body.image_data, res);
-        
-        if(a4aObj !== 'Invalid String'
-          && typeof(a4aObj) === 'object'
-          && a4aObj.fName 
-          && a4aObj.pFix)
-        {
-            a4aBGRCall(a4aObj.pFix, a4aObj.fName, body.options.fg_options, res);
-        } else {
-             handleError("Error occured in file conversion", res)
-             .catch(e => console.error(`[server]: ${e}`));
-        }
-        
+        //let a4aObj = base64ToFile(body.image_data, res);
+        a4aBGRCall(body.image_data, body.options.fg_options, res);
         console.log("make a4aBGR call");
     }
 
