@@ -29,6 +29,7 @@ const A4A_LIMIT = 25;
 * purify functions
 * Implement URL based conversions
 * Ideally but optionally implement body segmentation locally (virtually unlimited calls):  https://github.com/tensorflow/tfjs-models/tree/master/body-segmentation
+* Remove logs 
 * ^^^^ Could be a separate API altogether */
 
 type AnyObj = {
